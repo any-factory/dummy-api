@@ -37,6 +37,7 @@ const routes = [
   ['/v2/subtract', { result: 7 }],
   ['/v2/multiply', { result: 42 }],
   ['/v2/sqrt', { result: 8 }],
+  ['/v2/round', { result: 3.14 }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -48,6 +49,32 @@ for (const [pathname, expectedBody] of routes) {
     assert.deepEqual(await response.json(), expectedBody);
   });
 }
+
+test('round ignores query parameters for the number and precision', async () => {
+  const response = await fetch(`${baseUrl}/v2/round?number=9.999&decimals=0`);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 3.14 });
+});
+
+test('POST round ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/round`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ number: 9.999, decimals: 0 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 3.14 });
+});
+
+test('HEAD round returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/round`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 test('unknown routes return a JSON 404 response', async () => {
   const response = await fetch(`${baseUrl}/v2/divide`);
