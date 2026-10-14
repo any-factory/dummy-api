@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict';
+import { once } from 'node:events';
+import { request } from 'node:http';
+import { after, before, test } from 'node:test';
+import { createApp } from '../src/app.mjs';
+
+let server;
+let baseUrl;
+
+before(async () => {
+  server = createApp();
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  baseUrl = `http://127.0.0.1:${server.address().port}`;
+});
+
+after(async () => {
+  if (server?.listening) {
+    await new Promise((resolve, reject) => {
+      server.close((error) => {
+        if (error) {
+          reject(error);
+
+          return;
+        }
+
+        resolve();
+      });
+    });
+  }
+});
+
+const routes = [
+  ['/', { hello: 'world' }],
+  ['/status', { ok: true }],
+  ['/v2/add', { result: 2 }],
+  ['/v2/subtract', { result: 7 }],
+  ['/v2/multiply', { result: 42 }],
+  ['/v2/sqrt', { result: 8 }],
+];
+
+for (const [pathname, expectedBody] of routes) {
+  test(`GET ${pathname} returns 200 and the expected JSON`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), expectedBody);
+  });
+}
+
+test('unknown routes return a JSON 404 response', async () => {
+  const response = await fetch(`${baseUrl}/v2/divide`);
+
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { error: 'Not found' });
+});
+
+test('query parameters do not change the fixed handler result', async () => {
+  const response = await fetch(`${baseUrl}/v2/add?a=10&b=20`);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 2 });
+});
+
+test('POST preserves the source project behavior for known routes', async () => {
+  const response = await fetch(`${baseUrl}/v2/add`, { method: 'POST' });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 2 });
+});
+
+test('HEAD returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/status`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('malformed URLs return a JSON 400 response and the server stays available', async () => {
+  const response = await new Promise((resolve, reject) => {
+    const clientRequest = request(
+      {
+        hostname: '127.0.0.1',
+        port: server.address().port,
+        path: 'http://[',
+      },
+      (incomingResponse) => {
+        let body = '';
+
+        incomingResponse.setEncoding('utf8');
+        incomingResponse.on('data', (chunk) => {
+          body += chunk;
+        });
+        incomingResponse.on('error', reject);
+        incomingResponse.on('end', () => {
+          resolve({ status: incomingResponse.statusCode, headers: incomingResponse.headers, body });
+        });
+      },
+    );
+
+    clientRequest.on('error', reject);
+    clientRequest.end();
+  });
+
+  assert.equal(response.status, 400);
+  assert.equal(response.headers['content-type'], 'application/json; charset=utf-8');
+  assert.deepEqual(JSON.parse(response.body), { error: 'Bad request' });
+
+  const healthResponse = await fetch(`${baseUrl}/status`);
+
+  assert.equal(healthResponse.status, 200);
+  assert.deepEqual(await healthResponse.json(), { ok: true });
+});
