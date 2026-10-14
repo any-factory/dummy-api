@@ -70,6 +70,7 @@ Successful responses use HTTP `200` and
 | `/v2/add`      | `{"result":2}`      | `1 + 1`             |
 | `/v2/subtract` | `{"result":7}`      | `10 - 3`            |
 | `/v2/multiply` | `{"result":42}`     | `6 * 7`             |
+| `/v2/divide`   | `{"result":5}`      | `20 / 4`            |
 | `/v2/sqrt`     | `{"result":8}`      | Square root of `64` |
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
@@ -122,7 +123,7 @@ startup.
 | `npm run check`         | Check formatting, lint, and run all tests   |
 
 Each handler has its own unit test asserting the expected payload. HTTP tests
-verify all six routes, status codes, JSON content types, missing paths, query
+verify all seven routes, status codes, JSON content types, missing paths, query
 parameters, method compatibility, and malformed URLs. They listen on a local,
 automatically assigned port and close the server after the suite.
 

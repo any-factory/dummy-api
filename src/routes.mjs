@@ -1,4 +1,5 @@
 import { add } from './handlers/add.mjs';
+import { divide } from './handlers/divide.mjs';
 import { hello } from './handlers/hello.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
@@ -11,6 +12,7 @@ const routes = new Map([
   ['/v2/add', add],
   ['/v2/subtract', subtract],
   ['/v2/multiply', multiply],
+  ['/v2/divide', divide],
   ['/v2/sqrt', sqrt],
 ]);
 
