@@ -36,6 +36,7 @@ const routes = [
   ['/v2/add', { result: 2 }],
   ['/v2/subtract', { result: 7 }],
   ['/v2/multiply', { result: 42 }],
+  ['/v2/divide', { result: 5 }],
   ['/v2/sqrt', { result: 8 }],
   ['/v2/round', { result: 3.14 }],
 ];
@@ -77,7 +78,7 @@ test('HEAD round returns the JSON headers without a response body', async () => 
 });
 
 test('unknown routes return a JSON 404 response', async () => {
-  const response = await fetch(`${baseUrl}/v2/divide`);
+  const response = await fetch(`${baseUrl}/v2/unknown`);
 
   assert.equal(response.status, 404);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
@@ -100,6 +101,28 @@ test('POST preserves the source project behavior for known routes', async () => 
 
 test('HEAD returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/status`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('divide query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/divide?a=100&b=2`);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 5 });
+});
+
+test('POST divide returns the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/divide`, { method: 'POST' });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 5 });
+});
+
+test('HEAD divide returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/divide`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
