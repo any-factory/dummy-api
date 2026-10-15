@@ -86,6 +86,7 @@ Successful responses use HTTP `200` and
 | `/v2/uppercase`     | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
 | `/v2/lowercase`     | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
 | `/v2/word-count`    | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
+| `/v2/slug`          | `{"result":"hello-world"}`                                    | URL-friendly slug of the fixed string `Hello World`        |
 | `/v2/unique`        | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
 | `/v2/coin`          | `{"result":"heads"}` (example)                                | Random coin flip                                           |
 | `/v2/random-color`  | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
@@ -142,9 +143,11 @@ configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed text
-inputs of the reverse, Base64, uppercase, lowercase, or word-count endpoints.
+inputs of the reverse, Base64, uppercase, lowercase, word-count, or slug endpoints.
 The word-count endpoint always counts the fixed phrase `Hello from the API`;
-query parameters and request bodies do not override it. Known routes
+query parameters and request bodies do not override it. The slug endpoint always
+converts the fixed string `Hello World` to `hello-world`; query parameters and
+request bodies do not override the source or result. Known routes
 also accept other HTTP methods; `HEAD` returns headers without
 a response body.
 
