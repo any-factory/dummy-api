@@ -84,6 +84,7 @@ Successful responses use HTTP `200` and
 | `/v2/base64`       | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
 | `/v2/uppercase`    | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
 | `/v2/lowercase`    | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
+| `/v2/word-count`   | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
 | `/v2/unique`       | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
@@ -121,7 +122,9 @@ configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed text
-inputs of the reverse, Base64, uppercase, or lowercase endpoints. Known routes
+inputs of the reverse, Base64, uppercase, lowercase, or word-count endpoints.
+The word-count endpoint always counts the fixed phrase `Hello from the API`;
+query parameters and request bodies do not override it. Known routes
 also accept other HTTP methods; `HEAD` returns headers without
 a response body.
 

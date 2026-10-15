@@ -49,6 +49,7 @@ const routes = [
   ['/v2/base64', { base64: 'aGVsbG8=' }],
   ['/v2/uppercase', { result: 'HELLO' }],
   ['/v2/lowercase', { result: 'hello' }],
+  ['/v2/word-count', { result: 4 }],
   ['/v2/unique', { result: [1, 2, 3, 4] }],
 ];
 
@@ -94,6 +95,34 @@ for (const [pathname, textInput, expectedBody] of [
     assert.equal(await response.text(), '');
   });
 }
+
+test('GET word-count ignores text and input query parameters', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count?text=one&input=one`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 4 });
+});
+
+test('POST word-count ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'one', input: 'one' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 4 });
+});
+
+test('HEAD word-count returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 test('GET unique ignores input query parameters', async () => {
   const response = await fetch(`${baseUrl}/v2/unique?input=%5B9%2C9%5D`);
