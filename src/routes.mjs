@@ -1,5 +1,6 @@
 import { add } from './handlers/add.mjs';
 import { divide } from './handlers/divide.mjs';
+import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
 import { hello } from './handlers/hello.mjs';
 import { modulo } from './handlers/modulo.mjs';
@@ -19,6 +20,7 @@ const routes = new Map([
   ['/v2/modulo', modulo],
   ['/v2/sqrt', sqrt],
   ['/v2/round', round],
+  ['/v2/factorial', factorial],
   ['/v2/fibonacci', fibonacci],
 ]);
 
