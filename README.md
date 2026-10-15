@@ -76,6 +76,7 @@ Successful responses use HTTP `200` and
 | `/v2/sqrt`         | `{"result":8}`                  | Square root of `64`                     |
 | `/v2/round`        | `{"result":3.14}`               | `3.14159` rounded to two decimal places |
 | `/v2/factorial`    | `{"input":5,"result":120}`      | Factorial of `5` (`5!`)                 |
+| `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                        |
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
