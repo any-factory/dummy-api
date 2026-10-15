@@ -1,5 +1,6 @@
 import { add } from './handlers/add.mjs';
 import { base64 } from './handlers/base64.mjs';
+import { coin } from './handlers/coin.mjs';
 import { divide } from './handlers/divide.mjs';
 import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
@@ -45,6 +46,7 @@ const routes = new Map([
   ['/v2/word-count', wordCount],
   ['/v2/unique', unique],
   ['/v2/random-color', randomColor],
+  ['/v2/coin', coin],
   ['/v2/week-number', weekNumber],
   ['/v2/uuid', uuid],
   ['/v2/uptime', uptime],

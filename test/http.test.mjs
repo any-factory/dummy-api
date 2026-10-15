@@ -317,6 +317,63 @@ test('random color draws a new sample for each request', { concurrency: false },
   assert.equal(random.mock.callCount(), 2);
 });
 
+test('GET coin returns heads or tails', async () => {
+  const response = await fetch(`${baseUrl}/v2/coin`);
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(Object.keys(body), ['result']);
+  assert.ok(['heads', 'tails'].includes(body.result));
+});
+
+test(
+  'coin draws a new sample for each request and permits repeats',
+  { concurrency: false },
+  async (t) => {
+    const values = [0, 0.5, 0.5];
+    const random = t.mock.method(Math, 'random', () => values.shift());
+
+    for (const result of ['heads', 'tails', 'tails']) {
+      const response = await fetch(`${baseUrl}/v2/coin`);
+
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+      assert.deepEqual(await response.json(), { result });
+    }
+
+    assert.equal(random.mock.callCount(), 3);
+  },
+);
+
+test('coin ignores query parameters and JSON body inputs', { concurrency: false }, async (t) => {
+  const random = t.mock.method(Math, 'random', () => 0);
+  const queryResponse = await fetch(`${baseUrl}/v2/coin?result=tails&seed=1`);
+
+  assert.equal(queryResponse.status, 200);
+  assert.equal(queryResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await queryResponse.json(), { result: 'heads' });
+
+  const postResponse = await fetch(`${baseUrl}/v2/coin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ result: 'tails', seed: 1 }),
+  });
+
+  assert.equal(postResponse.status, 200);
+  assert.equal(postResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await postResponse.json(), { result: 'heads' });
+  assert.equal(random.mock.callCount(), 2);
+});
+
+test('HEAD coin returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/coin`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
 test('base64 query parameters do not change the fixed result', async () => {
   const response = await fetch(`${baseUrl}/v2/base64?text=world&input=world`);
 
