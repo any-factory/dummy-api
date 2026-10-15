@@ -78,6 +78,7 @@ Successful responses use HTTP `200` and
 | `/v2/power`         | `{"result":1024}`                                             | 2 to the power of 10 (`2 ** 10`)                           |
 | `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
 | `/v2/average`       | `{"result":5}`                                                | Arithmetic mean of `[2, 4, 6, 8]`                          |
+| `/v2/temperature`   | `{"celsius":100,"fahrenheit":212}`                            | Fixed 100°C converted to 212°F                             |
 | `/v2/factorial`     | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
 | `/v2/is-prime`      | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
 | `/v2/palindrome`    | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
@@ -100,6 +101,11 @@ Successful responses use HTTP `200` and
 The average endpoint calculates the arithmetic mean of the fixed array
 `[2, 4, 6, 8]`: `(2 + 4 + 6 + 8) / 4 = 5`, returning `{"result":5}`.
 Query parameters and request bodies do not override the fixed array.
+
+The temperature endpoint converts the fixed Celsius value `100` to Fahrenheit
+using `(100 * 9) / 5 + 32`, returning exactly `{"celsius":100,"fahrenheit":212}` (100°C → 212°F).
+Query parameters and request bodies do not override the input, conversion
+direction, or output.
 
 The sort endpoint sorts the fixed input `[5, 2, 8, 1, 3]` in ascending numeric
 order and returns `{"result":[1,2,3,5,8]}`. Query parameters and request bodies do

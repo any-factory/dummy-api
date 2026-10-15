@@ -43,6 +43,7 @@ const routes = [
   ['/v2/power', { result: 1024 }],
   ['/v2/round', { result: 3.14 }],
   ['/v2/average', { result: 5 }],
+  ['/v2/temperature', { celsius: 100, fahrenheit: 212 }],
   ['/v2/factorial', { input: 5, result: 120 }],
   ['/v2/is-prime', { result: true }],
   ['/v2/palindrome', { result: true }],
@@ -730,6 +731,34 @@ test('POST round ignores JSON body inputs and preserves the fixed result', async
 
 test('HEAD round returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/round`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('temperature query parameters do not change the fixed conversion', async () => {
+  const response = await fetch(`${baseUrl}/v2/temperature?celsius=0&from=F&to=C&fahrenheit=0`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { celsius: 100, fahrenheit: 212 });
+});
+
+test('POST temperature ignores JSON body inputs and preserves the fixed conversion', async () => {
+  const response = await fetch(`${baseUrl}/v2/temperature`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ celsius: 0, from: 'F', to: 'C', fahrenheit: 0 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { celsius: 100, fahrenheit: 212 });
+});
+
+test('HEAD temperature returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/temperature`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');

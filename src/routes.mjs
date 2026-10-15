@@ -21,6 +21,7 @@ import { sort } from './handlers/sort.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { temperature } from './handlers/temperature.mjs';
 import { unique } from './handlers/unique.mjs';
 import { uppercase } from './handlers/uppercase.mjs';
 import { uptime } from './handlers/uptime.mjs';
@@ -40,6 +41,7 @@ const routes = new Map([
   ['/v2/power', power],
   ['/v2/round', round],
   ['/v2/average', average],
+  ['/v2/temperature', temperature],
   ['/v2/factorial', factorial],
   ['/v2/is-prime', isPrime],
   ['/v2/palindrome', palindrome],
