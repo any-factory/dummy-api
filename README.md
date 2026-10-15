@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with coin, random-color, current-week, UUID, and uptime endpoints that generate
+responses, with coin, random-color, current-week, days-in-month, UUID, and uptime endpoints that generate
 variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
@@ -65,34 +65,35 @@ Stop the server with `Ctrl+C`.
 Successful responses use HTTP `200` and
 `Content-Type: application/json; charset=utf-8`.
 
-| Path               | JSON response                                                 | Meaning                                                    |
-| ------------------ | ------------------------------------------------------------- | ---------------------------------------------------------- |
-| `/`                | `{"hello":"world"}`                                           | Greeting                                                   |
-| `/status`          | `{"ok":true}`                                                 | Health check                                               |
-| `/v2/add`          | `{"result":2}`                                                | `1 + 1`                                                    |
-| `/v2/subtract`     | `{"result":7}`                                                | `10 - 3`                                                   |
-| `/v2/multiply`     | `{"result":42}`                                               | `6 * 7`                                                    |
-| `/v2/divide`       | `{"result":5}`                                                | `20 / 4`                                                   |
-| `/v2/modulo`       | `{"result":2}`                                                | `17 % 5`                                                   |
-| `/v2/sqrt`         | `{"result":8}`                                                | Square root of `64`                                        |
-| `/v2/round`        | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
-| `/v2/factorial`    | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
-| `/v2/is-prime`     | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
-| `/v2/palindrome`   | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
-| `/v2/fibonacci`    | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
-| `/v2/reverse`      | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
-| `/v2/sort`         | `{"result":[1,2,3,5,8]}`                                      | Fixed array sorted in ascending numeric order              |
-| `/v2/base64`       | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
-| `/v2/uppercase`    | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
-| `/v2/lowercase`    | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
-| `/v2/word-count`   | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
-| `/v2/slug`         | `{"result":"hello-world"}`                                    | URL-friendly slug of the fixed string `Hello World`        |
-| `/v2/unique`       | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
-| `/v2/coin`         | `{"result":"heads"}` (example)                                | Random coin flip                                           |
-| `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
-| `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
-| `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
-| `/v2/uptime`       | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
+| Path                | JSON response                                                 | Meaning                                                    |
+| ------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| `/`                 | `{"hello":"world"}`                                           | Greeting                                                   |
+| `/status`           | `{"ok":true}`                                                 | Health check                                               |
+| `/v2/add`           | `{"result":2}`                                                | `1 + 1`                                                    |
+| `/v2/subtract`      | `{"result":7}`                                                | `10 - 3`                                                   |
+| `/v2/multiply`      | `{"result":42}`                                               | `6 * 7`                                                    |
+| `/v2/divide`        | `{"result":5}`                                                | `20 / 4`                                                   |
+| `/v2/modulo`        | `{"result":2}`                                                | `17 % 5`                                                   |
+| `/v2/sqrt`          | `{"result":8}`                                                | Square root of `64`                                        |
+| `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
+| `/v2/factorial`     | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
+| `/v2/is-prime`      | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
+| `/v2/palindrome`    | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
+| `/v2/fibonacci`     | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
+| `/v2/reverse`       | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
+| `/v2/sort`          | `{"result":[1,2,3,5,8]}`                                      | Fixed array sorted in ascending numeric order              |
+| `/v2/base64`        | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
+| `/v2/uppercase`     | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
+| `/v2/lowercase`     | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
+| `/v2/word-count`    | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
+| `/v2/slug`          | `{"result":"hello-world"}`                                    | URL-friendly slug of the fixed string `Hello World`        |
+| `/v2/unique`        | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
+| `/v2/coin`          | `{"result":"heads"}` (example)                                | Random coin flip                                           |
+| `/v2/random-color`  | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
+| `/v2/week-number`   | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
+| `/v2/days-in-month` | `{"result":31}` (example)                                     | Days in the current UTC month                              |
+| `/v2/uuid`          | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
+| `/v2/uptime`        | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
 
 The sort endpoint sorts the fixed input `[5, 2, 8, 1, 3]` in ascending numeric
 order and returns `{"result":[1,2,3,5,8]}`. Query parameters and request bodies do
@@ -125,6 +126,13 @@ begin on Monday at 00:00 UTC, and week 1 contains January 4. Near New Year, the
 ISO week year can differ from the calendar year: January 1, 2021 is in week 53,
 while December 31, 2018 is in week 1. Query parameters and request bodies do not
 configure the date, timezone, or week number.
+
+The days-in-month endpoint reads the current server clock on every request and
+returns the total number of days in the current UTC calendar month as an integer
+from 28 through 31. February has 29 days in Gregorian leap years (including 2000)
+and 28 otherwise (including 1900). The current day does not change the month's
+total. Query parameters and request bodies do not configure the date, year, month,
+timezone, or result. The table shows an example for October 2026.
 
 The uptime endpoint samples `process.uptime()` on every request and returns the
 elapsed seconds since the running Node.js application process started. Fractional
@@ -172,7 +180,7 @@ dummy-api/
 
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the coin and random-color handlers sample
-`Math.random()` on each call, week-number reads the current UTC date on each
+`Math.random()` on each call, week-number and days-in-month read the current UTC date on each
 call, UUID calls `crypto.randomUUID()` on each call, and uptime samples
 `process.uptime()` on each call. They can be imported and tested directly without
 starting a server.
@@ -219,7 +227,7 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for coin, random-color, week-number, UUID, and uptime, the API keeps its responses deterministic
+Except for coin, random-color, week-number, days-in-month, UUID, and uptime, the API keeps its responses deterministic
 so factory runs can verify explicit expected results. Coin tests control the random
 source to verify the heads/tails boundary, fresh sampling per request, and allowed
 repeated outcomes. Random-color tests control
@@ -232,6 +240,15 @@ timezones to verify UTC independence:
 ```sh
 TZ=America/Los_Angeles node --test test/handlers/week-number.test.mjs
 TZ=Asia/Tokyo node --test test/handlers/week-number.test.mjs
+```
+
+Days-in-month tests freeze the clock to verify month lengths, Gregorian leap
+years, year boundaries, and per-request changes at month-end midnight UTC. Run its
+handler tests under different host timezones to verify UTC independence:
+
+```sh
+TZ=America/Los_Angeles node --test test/handlers/days-in-month.test.mjs
+TZ=Asia/Tokyo node --test test/handlers/days-in-month.test.mjs
 ```
 
 Uptime tests control the process uptime source to verify exact fractional values
