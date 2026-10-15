@@ -27,3 +27,7 @@ test('sortNumbers returns an empty array for empty input', () => {
 test('sortNumbers preserves already-sorted input', () => {
   assert.deepEqual(sortNumbers([1, 2, 3, 5, 8]), [1, 2, 3, 5, 8]);
 });
+
+test('sortNumbers preserves duplicate values', () => {
+  assert.deepEqual(sortNumbers([3, 1, 3, 2, 1]), [1, 1, 2, 3, 3]);
+});
