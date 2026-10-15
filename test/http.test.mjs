@@ -41,6 +41,7 @@ const routes = [
   ['/v2/modulo', { result: 2 }],
   ['/v2/sqrt', { result: 8 }],
   ['/v2/power', { result: 1024 }],
+  ['/v2/cube', { result: 27 }],
   ['/v2/round', { result: 3.14 }],
   ['/v2/average', { result: 5 }],
   ['/v2/max', { result: 9 }],
@@ -763,6 +764,34 @@ test('POST power ignores JSON body inputs and preserves the fixed result', async
 
 test('HEAD power returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/power`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('cube query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/cube?base=2&exponent=4&result=999`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 27 });
+});
+
+test('POST cube ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/cube`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base: 2, exponent: 4, result: 999 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 27 });
+});
+
+test('HEAD cube returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/cube`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
