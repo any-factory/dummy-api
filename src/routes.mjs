@@ -20,6 +20,7 @@ import { uppercase } from './handlers/uppercase.mjs';
 import { uptime } from './handlers/uptime.mjs';
 import { uuid } from './handlers/uuid.mjs';
 import { weekNumber } from './handlers/week-number.mjs';
+import { wordCount } from './handlers/word-count.mjs';
 
 const routes = new Map([
   ['/', hello],
@@ -39,6 +40,7 @@ const routes = new Map([
   ['/v2/base64', base64],
   ['/v2/uppercase', uppercase],
   ['/v2/lowercase', lowercase],
+  ['/v2/word-count', wordCount],
   ['/v2/unique', unique],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
