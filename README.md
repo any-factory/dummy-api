@@ -81,15 +81,21 @@ Successful responses use HTTP `200` and
 | `/v2/palindrome`    | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`     | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`       | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
+| `/v2/sort`          | `{"result":[1,2,3,5,8]}`                                      | Fixed array sorted in ascending numeric order              |
 | `/v2/base64`        | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
 | `/v2/uppercase`     | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
 | `/v2/lowercase`     | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
+| `/v2/word-count`    | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
 | `/v2/unique`        | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
 | `/v2/random-color`  | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`   | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/days-in-month` | `{"result":31}` (example)                                     | Days in the current UTC month                              |
 | `/v2/uuid`          | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
 | `/v2/uptime`        | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
+
+The sort endpoint sorts the fixed input `[5, 2, 8, 1, 3]` in ascending numeric
+order and returns `{"result":[1,2,3,5,8]}`. Query parameters and request bodies do
+not override the array or sort order.
 
 The unique endpoint removes duplicates from the fixed numeric array
 `[1, 2, 2, 3, 3, 4]`, preserving first-occurrence order. Query parameters and
@@ -129,7 +135,9 @@ configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed text
-inputs of the reverse, Base64, uppercase, or lowercase endpoints. Known routes
+inputs of the reverse, Base64, uppercase, lowercase, or word-count endpoints.
+The word-count endpoint always counts the fixed phrase `Hello from the API`;
+query parameters and request bodies do not override it. Known routes
 also accept other HTTP methods; `HEAD` returns headers without
 a response body.
 

@@ -46,9 +46,11 @@ const routes = [
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
   ['/v2/reverse', { result: 'olleh' }],
+  ['/v2/sort', { result: [1, 2, 3, 5, 8] }],
   ['/v2/base64', { base64: 'aGVsbG8=' }],
   ['/v2/uppercase', { result: 'HELLO' }],
   ['/v2/lowercase', { result: 'hello' }],
+  ['/v2/word-count', { result: 4 }],
   ['/v2/unique', { result: [1, 2, 3, 4] }],
 ];
 
@@ -94,6 +96,34 @@ for (const [pathname, textInput, expectedBody] of [
     assert.equal(await response.text(), '');
   });
 }
+
+test('GET word-count ignores text and input query parameters', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count?text=one&input=one`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 4 });
+});
+
+test('POST word-count ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'one', input: 'one' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 4 });
+});
+
+test('HEAD word-count returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/word-count`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 test('GET unique ignores input query parameters', async () => {
   const response = await fetch(`${baseUrl}/v2/unique?input=%5B9%2C9%5D`);
@@ -474,6 +504,34 @@ test('POST reverse ignores JSON body inputs and preserves the fixed result', asy
 
 test('HEAD reverse returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/reverse`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('sort query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/sort?values=9,0&order=desc`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: [1, 2, 3, 5, 8] });
+});
+
+test('POST sort ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/sort`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [9, 0], order: 'desc' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: [1, 2, 3, 5, 8] });
+});
+
+test('HEAD sort returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/sort`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
