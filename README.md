@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with coin, random-color, current-week, days-in-month, UUID, and uptime endpoints that generate
+responses, with coin, random-color, current-week, days-in-month, UUID, uptime, and timestamp endpoints that generate
 variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
@@ -98,6 +98,7 @@ Successful responses use HTTP `200` and
 | `/v2/days-in-month` | `{"result":31}` (example)                                     | Days in the current UTC month                              |
 | `/v2/uuid`          | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
 | `/v2/uptime`        | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
+| `/v2/timestamp`     | `{"result":1700000000}` (example)                             | Current Unix timestamp in whole seconds                    |
 
 The average endpoint calculates the arithmetic mean of the fixed array
 `[2, 4, 6, 8]`: `(2 + 4 + 6 + 8) / 4 = 5`, returning `{"result":5}`.
@@ -154,6 +155,12 @@ process restarts; it measures process lifetime rather than operating-system upti
 or time since the server was created. Query parameters and request bodies do not
 configure the measurement.
 
+The timestamp endpoint reads the server wall clock on every request and returns
+whole seconds since the Unix epoch as an integer, using `Math.floor(Date.now() / 1000)`.
+This value is independent of the host timezone; repeated requests within a second
+may return the same value. Query parameters and request bodies do not override
+the clock, timestamp, timezone, or result. The table shows an illustrative response.
+
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed text
 inputs of the reverse, length, Base64, uppercase, lowercase, word-count, or slug endpoints.
@@ -197,7 +204,8 @@ Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the coin and random-color handlers sample
 `Math.random()` on each call, week-number and days-in-month read the current UTC date on each
 call, UUID calls `crypto.randomUUID()` on each call, and uptime samples
-`process.uptime()` on each call. They can be imported and tested directly without
+`process.uptime()` on each call. Timestamp reads `Date.now()` on each call and
+converts milliseconds to whole Unix seconds. They can be imported and tested directly without
 starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
@@ -242,7 +250,7 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for coin, random-color, week-number, days-in-month, UUID, and uptime, the API keeps its responses deterministic
+Except for coin, random-color, week-number, days-in-month, UUID, uptime, and timestamp, the API keeps its responses deterministic
 so factory runs can verify explicit expected results. Coin tests control the random
 source to verify the heads/tails boundary, fresh sampling per request, and allowed
 repeated outcomes. Random-color tests control
@@ -268,4 +276,6 @@ TZ=Asia/Tokyo node --test test/handlers/days-in-month.test.mjs
 
 Uptime tests control the process uptime source to verify exact fractional values
 and sampling per request, and check real responses against process lifetime bounds.
+Timestamp tests freeze the clock to verify exact whole seconds, flooring at the
+epoch and second boundaries, per-request clock readings, and ignored request inputs.
 The checks are suitable for automation and exit with a nonzero status on failure.

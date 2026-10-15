@@ -541,6 +541,68 @@ test('HEAD base64 returns the JSON headers without a response body', async () =>
   assert.equal(await response.text(), '');
 });
 
+test(
+  'GET timestamp reads whole Unix seconds on each request',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: 1700000000999 });
+
+    const first = await fetch(`${baseUrl}/v2/timestamp`);
+
+    assert.equal(first.status, 200);
+    assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await first.json(), { result: 1700000000 });
+
+    t.mock.timers.setTime(1700000001000);
+
+    const second = await fetch(`${baseUrl}/v2/timestamp`);
+
+    assert.equal(second.status, 200);
+    assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await second.json(), { result: 1700000001 });
+  },
+);
+
+test(
+  'timestamp ignores query parameters and JSON body inputs',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: 1700000000999 });
+
+    const queryResponse = await fetch(
+      `${baseUrl}/v2/timestamp?timestamp=0&result=0&date=1970-01-01&timezone=Asia%2FTokyo`,
+    );
+
+    assert.equal(queryResponse.status, 200);
+    assert.equal(queryResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await queryResponse.json(), { result: 1700000000 });
+
+    const postResponse = await fetch(`${baseUrl}/v2/timestamp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timestamp: 0, result: 0, date: '1970-01-01', timezone: 'Asia/Tokyo' }),
+    });
+
+    assert.equal(postResponse.status, 200);
+    assert.equal(postResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await postResponse.json(), { result: 1700000000 });
+  },
+);
+
+test(
+  'HEAD timestamp returns JSON headers without a response body',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: 1700000000999 });
+
+    const response = await fetch(`${baseUrl}/v2/timestamp`, { method: 'HEAD' });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.equal(await response.text(), '');
+  },
+);
+
 test('GET uptime returns the current process lifetime in seconds', async () => {
   const before = process.uptime();
   const response = await fetch(`${baseUrl}/v2/uptime`);

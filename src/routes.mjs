@@ -23,6 +23,7 @@ import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
 import { temperature } from './handlers/temperature.mjs';
+import { timestamp } from './handlers/timestamp.mjs';
 import { unique } from './handlers/unique.mjs';
 import { uppercase } from './handlers/uppercase.mjs';
 import { uptime } from './handlers/uptime.mjs';
@@ -62,6 +63,7 @@ const routes = new Map([
   ['/v2/days-in-month', daysInMonth],
   ['/v2/uuid', uuid],
   ['/v2/uptime', uptime],
+  ['/v2/timestamp', timestamp],
 ]);
 
 export function findHandler(pathname) {
