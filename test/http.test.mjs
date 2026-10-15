@@ -42,6 +42,7 @@ const routes = [
   ['/v2/round', { result: 3.14 }],
   ['/v2/factorial', { input: 5, result: 120 }],
   ['/v2/is-prime', { result: true }],
+  ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
 ];
 
@@ -259,6 +260,34 @@ test('POST is-prime ignores JSON body inputs and checks the fixed number', async
 
 test('HEAD is-prime returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/is-prime`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('palindrome ignores query parameters for the text', async () => {
+  const response = await fetch(`${baseUrl}/v2/palindrome?text=hello`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: true });
+});
+
+test('POST palindrome ignores JSON body inputs and checks the fixed text', async () => {
+  const response = await fetch(`${baseUrl}/v2/palindrome`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'hello' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: true });
+});
+
+test('HEAD palindrome returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/palindrome`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
