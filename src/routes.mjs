@@ -1,4 +1,5 @@
 import { add } from './handlers/add.mjs';
+import { average } from './handlers/average.mjs';
 import { base64 } from './handlers/base64.mjs';
 import { coin } from './handlers/coin.mjs';
 import { daysInMonth } from './handlers/days-in-month.mjs';
@@ -39,6 +40,7 @@ const routes = new Map([
   ['/v2/sqrt', sqrt],
   ['/v2/power', power],
   ['/v2/round', round],
+  ['/v2/average', average],
   ['/v2/temperature', temperature],
   ['/v2/factorial', factorial],
   ['/v2/is-prime', isPrime],
