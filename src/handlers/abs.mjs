@@ -1,3 +1,5 @@
 export function abs() {
-  return { result: Math.abs(-7) };
+  const input = -7;
+
+  return { result: Math.abs(input) };
 }
