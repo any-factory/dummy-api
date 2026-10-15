@@ -51,6 +51,7 @@ const routes = [
   ['/v2/uppercase', { result: 'HELLO' }],
   ['/v2/lowercase', { result: 'hello' }],
   ['/v2/word-count', { result: 4 }],
+  ['/v2/slug', { result: 'hello-world' }],
   ['/v2/unique', { result: [1, 2, 3, 4] }],
 ];
 
@@ -119,6 +120,36 @@ test('POST word-count ignores JSON body inputs', async () => {
 
 test('HEAD word-count returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/word-count`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('GET slug ignores text, input, and result query parameters', async () => {
+  const response = await fetch(
+    `${baseUrl}/v2/slug?text=Other%20Text&input=Another&result=override`,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'hello-world' });
+});
+
+test('POST slug ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/slug`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'Other Text', input: 'Another', result: 'override' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'hello-world' });
+});
+
+test('HEAD slug returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/slug`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
