@@ -41,7 +41,7 @@ const routes = [
   ['/v2/modulo', { result: 2 }],
   ['/v2/sqrt', { result: 8 }],
   ['/v2/round', { result: 3.14 }],
-  ['/v2/temperature', { fahrenheit: 212 }],
+  ['/v2/temperature', { celsius: 100, fahrenheit: 212 }],
   ['/v2/factorial', { input: 5, result: 120 }],
   ['/v2/is-prime', { result: true }],
   ['/v2/palindrome', { result: true }],
@@ -684,7 +684,7 @@ test('temperature query parameters do not change the fixed conversion', async ()
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
-  assert.deepEqual(await response.json(), { fahrenheit: 212 });
+  assert.deepEqual(await response.json(), { celsius: 100, fahrenheit: 212 });
 });
 
 test('POST temperature ignores JSON body inputs and preserves the fixed conversion', async () => {
@@ -696,7 +696,7 @@ test('POST temperature ignores JSON body inputs and preserves the fixed conversi
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
-  assert.deepEqual(await response.json(), { fahrenheit: 212 });
+  assert.deepEqual(await response.json(), { celsius: 100, fahrenheit: 212 });
 });
 
 test('HEAD temperature returns the JSON headers without a response body', async () => {
