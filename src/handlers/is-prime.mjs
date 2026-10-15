@@ -1,11 +1,19 @@
-export function isPrime() {
-  const number = 13;
+function isPrime(n) {
+  if (n < 2) {
+    return false;
+  }
 
-  for (let divisor = 2; divisor <= Math.sqrt(number); divisor += 1) {
-    if (number % divisor === 0) {
-      return { result: false };
+  for (let divisor = 2; divisor <= Math.sqrt(n); divisor += 1) {
+    if (n % divisor === 0) {
+      return false;
     }
   }
 
-  return { result: true };
+  return true;
 }
+
+function isPrimeHandler() {
+  return { result: isPrime(13) };
+}
+
+export { isPrimeHandler as isPrime };
