@@ -42,6 +42,7 @@ const routes = [
   ['/v2/sqrt', { result: 8 }],
   ['/v2/power', { result: 1024 }],
   ['/v2/cube', { result: 27 }],
+  ['/v2/square', { result: 144 }],
   ['/v2/round', { result: 3.14 }],
   ['/v2/average', { result: 5 }],
   ['/v2/max', { result: 9 }],
@@ -792,6 +793,34 @@ test('POST cube ignores JSON body inputs and preserves the fixed result', async 
 
 test('HEAD cube returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/cube`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('square query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/square?number=5&base=3&exponent=3&result=999`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 144 });
+});
+
+test('POST square ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/square`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ number: 5, base: 3, exponent: 3, result: 999 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 144 });
+});
+
+test('HEAD square returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/square`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');

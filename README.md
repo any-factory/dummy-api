@@ -77,6 +77,7 @@ Successful responses use HTTP `200` and
 | `/v2/sqrt`          | `{"result":8}`                                                | Square root of `64`                                        |
 | `/v2/power`         | `{"result":1024}`                                             | 2 to the power of 10 (`2 ** 10`)                           |
 | `/v2/cube`          | `{"result":27}`                                               | 3 to the power of 3 (`3 ** 3`)                             |
+| `/v2/square`        | `{"result":144}`                                              | Square of `12` (`12 ** 2`)                                 |
 | `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
 | `/v2/average`       | `{"result":5}`                                                | Arithmetic mean of `[2, 4, 6, 8]`                          |
 | `/v2/max`           | `{"result":9}`                                                | Largest of `[3, 9, 2]`                                     |
@@ -103,6 +104,10 @@ Successful responses use HTTP `200` and
 
 The cube endpoint calculates the fixed expression `3 ** 3`, returning `{"result":27}`.
 Query parameters and request bodies do not override the base, exponent, or result.
+
+The square endpoint squares the fixed input `12` using `12 ** 2`, returning
+`{"result":144}`. Query parameters and request bodies do not override the input
+or result.
 
 The average endpoint calculates the arithmetic mean of the fixed array
 `[2, 4, 6, 8]`: `(2 + 4 + 6 + 8) / 4 = 5`, returning `{"result":5}`.
