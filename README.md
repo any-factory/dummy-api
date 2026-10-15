@@ -82,6 +82,10 @@ Successful responses use HTTP `200` and
 | `/v2/fibonacci`    | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`      | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
 | `/v2/sort`         | `{"result":[1,2,3,5,8]}`                                      | Fixed array sorted in ascending numeric order              |
+| `/v2/base64`       | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
+| `/v2/uppercase`    | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
+| `/v2/lowercase`    | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
+| `/v2/unique`       | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
@@ -90,6 +94,10 @@ Successful responses use HTTP `200` and
 The sort endpoint sorts the fixed input `[5, 2, 8, 1, 3]` in ascending numeric
 order and returns `{"result":[1,2,3,5,8]}`. Query parameters and request bodies do
 not override the array or sort order.
+
+The unique endpoint removes duplicates from the fixed numeric array
+`[1, 2, 2, 3, 3, 4]`, preserving first-occurrence order. Query parameters and
+request bodies do not override this input.
 
 The UUID endpoint generates a fresh UUID v4 on every request using Node's built-in
 `crypto.randomUUID()`. The `result` is a lowercase, hyphenated, 36-character UUID
@@ -117,8 +125,9 @@ or time since the server was created. Query parameters and request bodies do not
 configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
-request bodies do not supply arithmetic inputs or the reverse endpoint's string
-input. Known routes also accept other HTTP methods; `HEAD` returns headers without
+request bodies do not supply arithmetic inputs or configure the fixed text
+inputs of the reverse, Base64, uppercase, or lowercase endpoints. Known routes
+also accept other HTTP methods; `HEAD` returns headers without
 a response body.
 
 Unknown paths return HTTP `404` with `{"error":"Not found"}`. Malformed URLs that

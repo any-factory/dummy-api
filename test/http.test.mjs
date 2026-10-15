@@ -47,6 +47,10 @@ const routes = [
   ['/v2/fibonacci', { result: 13 }],
   ['/v2/reverse', { result: 'olleh' }],
   ['/v2/sort', { result: [1, 2, 3, 5, 8] }],
+  ['/v2/base64', { base64: 'aGVsbG8=' }],
+  ['/v2/uppercase', { result: 'HELLO' }],
+  ['/v2/lowercase', { result: 'hello' }],
+  ['/v2/unique', { result: [1, 2, 3, 4] }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -58,6 +62,67 @@ for (const [pathname, expectedBody] of routes) {
     assert.deepEqual(await response.json(), expectedBody);
   });
 }
+
+for (const [pathname, textInput, expectedBody] of [
+  ['/v2/uppercase', 'world', { result: 'HELLO' }],
+  ['/v2/lowercase', 'WORLD', { result: 'hello' }],
+]) {
+  test(`GET ${pathname} ignores text query parameters`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}?text=${textInput}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), expectedBody);
+  });
+
+  test(`POST ${pathname} ignores JSON body inputs`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: textInput }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), expectedBody);
+  });
+
+  test(`HEAD ${pathname} returns the JSON headers without a response body`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`, { method: 'HEAD' });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.equal(await response.text(), '');
+  });
+}
+
+test('GET unique ignores input query parameters', async () => {
+  const response = await fetch(`${baseUrl}/v2/unique?input=%5B9%2C9%5D`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: [1, 2, 3, 4] });
+});
+
+test('POST unique ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/unique`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: [9, 9] }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: [1, 2, 3, 4] });
+});
+
+test('HEAD unique returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/unique`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 for (const pathname of ['/v2/uuid', '/v2/uuid?uuid=override&version=1']) {
   test(`GET ${pathname} returns a lowercase UUID v4`, async () => {
@@ -221,6 +286,34 @@ test('random color draws a new sample for each request', { concurrency: false },
 
   assert.deepEqual(await second.json(), { color: '#1A2B3C' });
   assert.equal(random.mock.callCount(), 2);
+});
+
+test('base64 query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/base64?text=world&input=world`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { base64: 'aGVsbG8=' });
+});
+
+test('POST base64 ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/base64`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'world', input: 'world' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { base64: 'aGVsbG8=' });
+});
+
+test('HEAD base64 returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/base64`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
 });
 
 test('GET uptime returns the current process lifetime in seconds', async () => {
