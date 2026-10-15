@@ -43,6 +43,7 @@ const routes = [
   ['/v2/power', { result: 1024 }],
   ['/v2/round', { result: 3.14 }],
   ['/v2/average', { result: 5 }],
+  ['/v2/max', { result: 9 }],
   ['/v2/temperature', { celsius: 100, fahrenheit: 212 }],
   ['/v2/factorial', { input: 5, result: 120 }],
   ['/v2/is-prime', { result: true }],
@@ -623,6 +624,34 @@ test('POST average ignores JSON body inputs and preserves the fixed result', asy
 
 test('HEAD average returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/average`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('max query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/max?input=%5B100%2C200%5D&result=999`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 9 });
+});
+
+test('POST max ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/max`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: [100, 200], result: 999 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 9 });
+});
+
+test('HEAD max returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/max`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');

@@ -9,6 +9,7 @@ import { fibonacci } from './handlers/fibonacci.mjs';
 import { hello } from './handlers/hello.mjs';
 import { isPrime } from './handlers/is-prime.mjs';
 import { lowercase } from './handlers/lowercase.mjs';
+import { max } from './handlers/max.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { palindrome } from './handlers/palindrome.mjs';
@@ -41,6 +42,7 @@ const routes = new Map([
   ['/v2/power', power],
   ['/v2/round', round],
   ['/v2/average', average],
+  ['/v2/max', max],
   ['/v2/temperature', temperature],
   ['/v2/factorial', factorial],
   ['/v2/is-prime', isPrime],
