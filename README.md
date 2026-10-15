@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with a random-color endpoint that generates a variable response.
+responses, with random-color and uptime endpoints that generate variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
 English.
@@ -80,12 +80,20 @@ Successful responses use HTTP `200` and
 | `/v2/palindrome`   | `{"result":true}`               | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                                   |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                                           |
+| `/v2/uptime`       | `{"result":42.75}` (example)    | Node.js process uptime in seconds                          |
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
 value has a `#` followed by six uppercase hexadecimal digits, preserving leading
 zeros (for example, `#00000A`). All values from `#000000` through `#FFFFFF` are
 possible, and colors may repeat. Query parameters and request bodies do not
 configure the generator.
+
+The uptime endpoint samples `process.uptime()` on every request and returns the
+elapsed seconds since the running Node.js application process started. Fractional
+seconds are preserved without rounding or truncation. The value resets when the
+process restarts; it measures process lifetime rather than operating-system uptime
+or time since the server was created. Query parameters and request bodies do not
+configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs. Known routes also accept other
@@ -120,7 +128,8 @@ dummy-api/
 
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the random-color handler samples
-`Math.random()` on each call. They can be imported and tested directly without
+`Math.random()` and the uptime handler samples `process.uptime()` on each call.
+They can be imported and tested directly without
 starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
@@ -165,7 +174,9 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for random-color, the API keeps its responses deterministic so factory
-runs can verify explicit expected results. Random-color tests control the random
-source to verify exact formatting and generation per request. The checks are
-suitable for automation and exit with a nonzero status on failure.
+Except for random-color and uptime, the API keeps its responses deterministic so
+factory runs can verify explicit expected results. Random-color tests control the
+random source to verify exact formatting and generation per request. Uptime tests
+control the process uptime source to verify exact fractional values and sampling
+per request, and check real responses against process lifetime bounds. The checks
+are suitable for automation and exit with a nonzero status on failure.

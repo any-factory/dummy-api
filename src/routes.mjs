@@ -12,6 +12,7 @@ import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { uptime } from './handlers/uptime.mjs';
 
 const routes = new Map([
   ['/', hello],
@@ -28,6 +29,7 @@ const routes = new Map([
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
   ['/v2/random-color', randomColor],
+  ['/v2/uptime', uptime],
 ]);
 
 export function findHandler(pathname) {
