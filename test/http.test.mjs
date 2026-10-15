@@ -40,6 +40,7 @@ const routes = [
   ['/v2/modulo', { result: 2 }],
   ['/v2/sqrt', { result: 8 }],
   ['/v2/round', { result: 3.14 }],
+  ['/v2/fibonacci', { result: 13 }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -51,6 +52,32 @@ for (const [pathname, expectedBody] of routes) {
     assert.deepEqual(await response.json(), expectedBody);
   });
 }
+
+test('fibonacci query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/fibonacci?n=10`);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 13 });
+});
+
+test('POST fibonacci ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/fibonacci`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ n: 10 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 13 });
+});
+
+test('HEAD fibonacci returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/fibonacci`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 test('round ignores query parameters for the number and precision', async () => {
   const response = await fetch(`${baseUrl}/v2/round?number=9.999&decimals=0`);
