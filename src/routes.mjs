@@ -10,6 +10,7 @@ import { palindrome } from './handlers/palindrome.mjs';
 import { randomColor } from './handlers/random-color.mjs';
 import { reverse } from './handlers/reverse.mjs';
 import { round } from './handlers/round.mjs';
+import { sort } from './handlers/sort.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
@@ -32,6 +33,7 @@ const routes = new Map([
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
   ['/v2/reverse', reverse],
+  ['/v2/sort', sort],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
   ['/v2/uuid', uuid],
