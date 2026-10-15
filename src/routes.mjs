@@ -11,6 +11,7 @@ import { lowercase } from './handlers/lowercase.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { palindrome } from './handlers/palindrome.mjs';
+import { power } from './handlers/power.mjs';
 import { randomColor } from './handlers/random-color.mjs';
 import { reverse } from './handlers/reverse.mjs';
 import { round } from './handlers/round.mjs';
@@ -35,6 +36,7 @@ const routes = new Map([
   ['/v2/divide', divide],
   ['/v2/modulo', modulo],
   ['/v2/sqrt', sqrt],
+  ['/v2/power', power],
   ['/v2/round', round],
   ['/v2/factorial', factorial],
   ['/v2/is-prime', isPrime],
