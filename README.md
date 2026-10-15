@@ -71,6 +71,7 @@ Successful responses use HTTP `200` and
 | `/v2/subtract` | `{"result":7}`      | `10 - 3`                                |
 | `/v2/multiply` | `{"result":42}`     | `6 * 7`                                 |
 | `/v2/divide`   | `{"result":5}`      | `20 / 4`                                |
+| `/v2/modulo`   | `{"result":2}`      | `17 % 5`                                |
 | `/v2/sqrt`     | `{"result":8}`      | Square root of `64`                     |
 | `/v2/round`    | `{"result":3.14}`   | `3.14159` rounded to two decimal places |
 | `/v2/is-prime` | `{"result":true}`   | Checks whether `13` is prime            |
