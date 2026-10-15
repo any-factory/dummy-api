@@ -81,6 +81,8 @@ Successful responses use HTTP `200` and
 | `/v2/palindrome`   | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`    | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`      | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
+| `/v2/uppercase`    | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
+| `/v2/lowercase`    | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
@@ -112,8 +114,8 @@ or time since the server was created. Query parameters and request bodies do not
 configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
-request bodies do not supply arithmetic inputs or the reverse endpoint's string
-input. Known routes also accept other HTTP methods; `HEAD` returns headers without
+request bodies do not supply arithmetic inputs or text inputs for the reverse,
+uppercase, or lowercase endpoints. Known routes also accept other HTTP methods; `HEAD` returns headers without
 a response body.
 
 Unknown paths return HTTP `404` with `{"error":"Not found"}`. Malformed URLs that

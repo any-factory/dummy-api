@@ -4,6 +4,7 @@ import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
 import { hello } from './handlers/hello.mjs';
 import { isPrime } from './handlers/is-prime.mjs';
+import { lowercase } from './handlers/lowercase.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { palindrome } from './handlers/palindrome.mjs';
@@ -13,6 +14,7 @@ import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { uppercase } from './handlers/uppercase.mjs';
 import { uptime } from './handlers/uptime.mjs';
 import { uuid } from './handlers/uuid.mjs';
 import { weekNumber } from './handlers/week-number.mjs';
@@ -32,6 +34,8 @@ const routes = new Map([
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
   ['/v2/reverse', reverse],
+  ['/v2/uppercase', uppercase],
+  ['/v2/lowercase', lowercase],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
   ['/v2/uuid', uuid],
