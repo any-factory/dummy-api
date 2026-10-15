@@ -1,4 +1,5 @@
 import { add } from './handlers/add.mjs';
+import { base64 } from './handlers/base64.mjs';
 import { divide } from './handlers/divide.mjs';
 import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
@@ -31,6 +32,7 @@ const routes = new Map([
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
   ['/v2/reverse', reverse],
+  ['/v2/base64', base64],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
   ['/v2/uuid', uuid],
