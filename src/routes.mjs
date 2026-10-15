@@ -1,3 +1,4 @@
+import { abs } from './handlers/abs.mjs';
 import { add } from './handlers/add.mjs';
 import { average } from './handlers/average.mjs';
 import { base64 } from './handlers/base64.mjs';
@@ -45,6 +46,7 @@ const routes = new Map([
   ['/v2/power', power],
   ['/v2/cube', cube],
   ['/v2/square', square],
+  ['/v2/abs', abs],
   ['/v2/round', round],
   ['/v2/average', average],
   ['/v2/max', max],
