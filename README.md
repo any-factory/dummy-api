@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with coin, random-color, current-week, days-in-month, UUID, and uptime endpoints that generate
+responses, with coin, random-color, current-week, days-in-month, current-year, UUID, and uptime endpoints that generate
 variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
@@ -98,6 +98,7 @@ Successful responses use HTTP `200` and
 | `/v2/random-color`  | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`   | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/days-in-month` | `{"result":31}` (example)                                     | Days in the current UTC month                              |
+| `/v2/year`          | `{"result":2026}` (example)                                   | Current UTC calendar year                                  |
 | `/v2/uuid`          | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
 | `/v2/uptime`        | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
 
@@ -156,6 +157,12 @@ and 28 otherwise (including 1900). The current day does not change the month's
 total. Query parameters and request bodies do not configure the date, year, month,
 timezone, or result. The table shows an example for October 2026.
 
+The year endpoint reads the current server clock on every request and returns the
+Gregorian UTC calendar year as an integer. It updates at midnight UTC on January 1,
+independently of the host timezone or ISO week year. Query parameters and request
+bodies do not configure the year, date, timezone, or result. The table shows an
+example for 2026.
+
 The uptime endpoint samples `process.uptime()` on every request and returns the
 elapsed seconds since the running Node.js application process started. Fractional
 seconds are preserved without rounding or truncation. The value resets when the
@@ -204,7 +211,7 @@ dummy-api/
 
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the coin and random-color handlers sample
-`Math.random()` on each call, week-number and days-in-month read the current UTC date on each
+`Math.random()` on each call, week-number, days-in-month, and year read the current UTC date on each
 call, UUID calls `crypto.randomUUID()` on each call, and uptime samples
 `process.uptime()` on each call. They can be imported and tested directly without
 starting a server.
@@ -251,7 +258,7 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for coin, random-color, week-number, days-in-month, UUID, and uptime, the API keeps its responses deterministic
+Except for coin, random-color, week-number, days-in-month, year, UUID, and uptime, the API keeps its responses deterministic
 so factory runs can verify explicit expected results. Coin tests control the random
 source to verify the heads/tails boundary, fresh sampling per request, and allowed
 repeated outcomes. Random-color tests control
@@ -273,6 +280,15 @@ handler tests under different host timezones to verify UTC independence:
 ```sh
 TZ=America/Los_Angeles node --test test/handlers/days-in-month.test.mjs
 TZ=Asia/Tokyo node --test test/handlers/days-in-month.test.mjs
+```
+
+Year tests freeze the clock to verify UTC calendar years at ISO week-year and
+host timezone boundaries, and fresh clock reads across New Year midnight UTC.
+Run its handler tests under different host timezones to verify UTC independence:
+
+```sh
+TZ=America/Los_Angeles node --test test/handlers/year.test.mjs
+TZ=Asia/Tokyo node --test test/handlers/year.test.mjs
 ```
 
 Uptime tests control the process uptime source to verify exact fractional values

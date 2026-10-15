@@ -409,6 +409,78 @@ test('days in month updates across month-end midnight UTC on the same server', a
   assert.deepEqual(await second.json(), { result: 31 });
 });
 
+for (const pathname of [
+  '/v2/year',
+  '/v2/year?year=1999&date=1999-01-01&timezone=Asia/Tokyo&result=0',
+]) {
+  test(
+    `GET ${pathname} returns the current UTC calendar year`,
+    { concurrency: false },
+    async (t) => {
+      t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+      const response = await fetch(`${baseUrl}${pathname}`);
+
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+      assert.deepEqual(await response.json(), { result: 2026 });
+    },
+  );
+}
+
+test(
+  'POST year ignores year, date, timezone, and result body inputs',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+    const response = await fetch(`${baseUrl}/v2/year`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year: 1999, date: '1999-01-01', timezone: 'Asia/Tokyo', result: 0 }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { result: 2026 });
+  },
+);
+
+test(
+  'HEAD year returns the JSON headers without a response body',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+    const response = await fetch(`${baseUrl}/v2/year`, { method: 'HEAD' });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.equal(await response.text(), '');
+  },
+);
+
+test(
+  'year updates across New Year midnight UTC on the same server',
+  { concurrency: false },
+  async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-12-31T23:59:59.999Z') });
+
+    const first = await fetch(`${baseUrl}/v2/year`);
+
+    assert.equal(first.status, 200);
+    assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await first.json(), { result: 2026 });
+    t.mock.timers.setTime(Date.parse('2027-01-01T00:00:00.000Z'));
+
+    const second = await fetch(`${baseUrl}/v2/year`);
+
+    assert.equal(second.status, 200);
+    assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await second.json(), { result: 2027 });
+  },
+);
+
 for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
   test(`GET ${pathname} returns an uppercase RGB color`, async () => {
     const response = await fetch(`${baseUrl}${pathname}`);

@@ -31,6 +31,7 @@ import { uptime } from './handlers/uptime.mjs';
 import { uuid } from './handlers/uuid.mjs';
 import { weekNumber } from './handlers/week-number.mjs';
 import { wordCount } from './handlers/word-count.mjs';
+import { year } from './handlers/year.mjs';
 
 const routes = new Map([
   ['/', hello],
@@ -64,6 +65,7 @@ const routes = new Map([
   ['/v2/coin', coin],
   ['/v2/week-number', weekNumber],
   ['/v2/days-in-month', daysInMonth],
+  ['/v2/year', year],
   ['/v2/uuid', uuid],
   ['/v2/uptime', uptime],
 ]);
