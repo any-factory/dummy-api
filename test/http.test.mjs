@@ -40,6 +40,7 @@ const routes = [
   ['/v2/divide', { result: 5 }],
   ['/v2/modulo', { result: 2 }],
   ['/v2/sqrt', { result: 8 }],
+  ['/v2/power', { result: 1024 }],
   ['/v2/round', { result: 3.14 }],
   ['/v2/factorial', { input: 5, result: 120 }],
   ['/v2/is-prime', { result: true }],
@@ -646,6 +647,34 @@ test('POST fibonacci ignores JSON body inputs and preserves the fixed result', a
 
 test('HEAD fibonacci returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/fibonacci`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('power query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/power?base=3&exponent=2`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 1024 });
+});
+
+test('POST power ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/power`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base: 3, exponent: 2 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 1024 });
+});
+
+test('HEAD power returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/power`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');

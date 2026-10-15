@@ -75,6 +75,7 @@ Successful responses use HTTP `200` and
 | `/v2/divide`        | `{"result":5}`                                                | `20 / 4`                                                   |
 | `/v2/modulo`        | `{"result":2}`                                                | `17 % 5`                                                   |
 | `/v2/sqrt`          | `{"result":8}`                                                | Square root of `64`                                        |
+| `/v2/power`         | `{"result":1024}`                                             | 2 to the power of 10 (`2 ** 10`)                           |
 | `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
 | `/v2/factorial`     | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
 | `/v2/is-prime`      | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
