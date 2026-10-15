@@ -6,8 +6,8 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with random-color and current-week endpoints that generate variable
-responses.
+responses, with random-color, current-week, and UUID endpoints that generate
+variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
 English.
@@ -65,24 +65,30 @@ Stop the server with `Ctrl+C`.
 Successful responses use HTTP `200` and
 `Content-Type: application/json; charset=utf-8`.
 
-| Path               | JSON response                   | Meaning                                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------------------- |
-| `/`                | `{"hello":"world"}`             | Greeting                                                   |
-| `/status`          | `{"ok":true}`                   | Health check                                               |
-| `/v2/add`          | `{"result":2}`                  | `1 + 1`                                                    |
-| `/v2/subtract`     | `{"result":7}`                  | `10 - 3`                                                   |
-| `/v2/multiply`     | `{"result":42}`                 | `6 * 7`                                                    |
-| `/v2/divide`       | `{"result":5}`                  | `20 / 4`                                                   |
-| `/v2/modulo`       | `{"result":2}`                  | `17 % 5`                                                   |
-| `/v2/sqrt`         | `{"result":8}`                  | Square root of `64`                                        |
-| `/v2/round`        | `{"result":3.14}`               | `3.14159` rounded to two decimal places                    |
-| `/v2/factorial`    | `{"input":5,"result":120}`      | Factorial of `5` (`5!`)                                    |
-| `/v2/is-prime`     | `{"result":true}`               | Checks whether the fixed input `13` is prime               |
-| `/v2/palindrome`   | `{"result":true}`               | Checks whether the fixed input `"racecar"` is a palindrome |
-| `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                                   |
-| `/v2/reverse`      | `{"result":"olleh"}`            | Reverse of the fixed string `hello`                        |
-| `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                                           |
-| `/v2/week-number`  | `{"result":42}` (example)       | Current ISO week number in UTC                             |
+| Path               | JSON response                                                 | Meaning                                                    |
+| ------------------ | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| `/`                | `{"hello":"world"}`                                           | Greeting                                                   |
+| `/status`          | `{"ok":true}`                                                 | Health check                                               |
+| `/v2/add`          | `{"result":2}`                                                | `1 + 1`                                                    |
+| `/v2/subtract`     | `{"result":7}`                                                | `10 - 3`                                                   |
+| `/v2/multiply`     | `{"result":42}`                                               | `6 * 7`                                                    |
+| `/v2/divide`       | `{"result":5}`                                                | `20 / 4`                                                   |
+| `/v2/modulo`       | `{"result":2}`                                                | `17 % 5`                                                   |
+| `/v2/sqrt`         | `{"result":8}`                                                | Square root of `64`                                        |
+| `/v2/round`        | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
+| `/v2/factorial`    | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
+| `/v2/is-prime`     | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
+| `/v2/palindrome`   | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
+| `/v2/fibonacci`    | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
+| `/v2/reverse`      | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
+| `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
+| `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
+| `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
+
+The UUID endpoint generates a fresh UUID v4 on every request using Node's built-in
+`crypto.randomUUID()`. The `result` is a lowercase, hyphenated, 36-character UUID
+with the RFC variant. Query parameters and request bodies do not configure
+generation or override the result. The table shows an example, not a fixed value.
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
 value has a `#` followed by six uppercase hexadecimal digits, preserving leading
@@ -131,8 +137,8 @@ dummy-api/
 
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the random-color handler samples
-`Math.random()` on each call, and week-number reads the current UTC date on each
-call. They can be imported and tested directly without
+`Math.random()` on each call, week-number reads the current UTC date on each
+call, and UUID calls `crypto.randomUUID()` on each call. They can be imported and tested directly without
 starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
@@ -177,10 +183,11 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for random-color and week-number, the API keeps its responses deterministic
+Except for random-color, week-number, and UUID, the API keeps its responses deterministic
 so factory runs can verify explicit expected results. Random-color tests control
 the random source to verify exact formatting and generation per request.
-Week-number tests freeze the clock to verify ISO year rollovers, leap day, and
+UUID tests check the version and variant and control the generator to verify
+exact payloads and generation per request. Week-number tests freeze the clock to verify ISO year rollovers, leap day, and
 changes at Monday midnight UTC. Run its handler tests under different host
 timezones to verify UTC independence:
 

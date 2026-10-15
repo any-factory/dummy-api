@@ -13,6 +13,7 @@ import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { uuid } from './handlers/uuid.mjs';
 import { weekNumber } from './handlers/week-number.mjs';
 
 const routes = new Map([
@@ -32,6 +33,7 @@ const routes = new Map([
   ['/v2/reverse', reverse],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
+  ['/v2/uuid', uuid],
 ]);
 
 export function findHandler(pathname) {
