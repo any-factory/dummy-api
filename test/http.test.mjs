@@ -251,6 +251,67 @@ test('HEAD base64 returns the JSON headers without a response body', async () =>
   assert.equal(await response.text(), '');
 });
 
+test('GET uptime returns the current process lifetime in seconds', async () => {
+  const before = process.uptime();
+  const response = await fetch(`${baseUrl}/v2/uptime`);
+  const body = await response.json();
+  const after = process.uptime();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(Object.keys(body), ['result']);
+  assert.equal(typeof body.result, 'number');
+  assert.ok(Number.isFinite(body.result));
+  assert.ok(body.result >= 0);
+  assert.ok(body.result >= before);
+  assert.ok(body.result <= after);
+});
+
+test('uptime samples the process lifetime for each request', { concurrency: false }, async (t) => {
+  const values = [12.25, 13.5];
+  const source = t.mock.method(process, 'uptime', () => values.shift());
+  const first = await fetch(`${baseUrl}/v2/uptime`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: 12.25 });
+
+  const second = await fetch(`${baseUrl}/v2/uptime`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: 13.5 });
+  assert.equal(source.mock.callCount(), 2);
+});
+
+test('uptime ignores query parameters and JSON body inputs', { concurrency: false }, async (t) => {
+  t.mock.method(process, 'uptime', () => 42.75);
+
+  const queryResponse = await fetch(`${baseUrl}/v2/uptime?result=999&seconds=999`);
+
+  assert.equal(queryResponse.status, 200);
+  assert.equal(queryResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await queryResponse.json(), { result: 42.75 });
+
+  const postResponse = await fetch(`${baseUrl}/v2/uptime`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ result: 999, seconds: 999 }),
+  });
+
+  assert.equal(postResponse.status, 200);
+  assert.equal(postResponse.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await postResponse.json(), { result: 42.75 });
+});
+
+test('HEAD uptime returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/uptime`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
 test('reverse query parameters do not change the fixed result', async () => {
   const response = await fetch(`${baseUrl}/v2/reverse?text=world`);
 

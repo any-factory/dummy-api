@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with random-color, current-week, and UUID endpoints that generate
+responses, with random-color, current-week, UUID, and uptime endpoints that generate
 variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
@@ -85,6 +85,7 @@ Successful responses use HTTP `200` and
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
+| `/v2/uptime`       | `{"result":42.75}` (example)                                  | Node.js process uptime in seconds                          |
 
 The UUID endpoint generates a fresh UUID v4 on every request using Node's built-in
 `crypto.randomUUID()`. The `result` is a lowercase, hyphenated, 36-character UUID
@@ -103,6 +104,13 @@ begin on Monday at 00:00 UTC, and week 1 contains January 4. Near New Year, the
 ISO week year can differ from the calendar year: January 1, 2021 is in week 53,
 while December 31, 2018 is in week 1. Query parameters and request bodies do not
 configure the date, timezone, or week number.
+
+The uptime endpoint samples `process.uptime()` on every request and returns the
+elapsed seconds since the running Node.js application process started. Fractional
+seconds are preserved without rounding or truncation. The value resets when the
+process restarts; it measures process lifetime rather than operating-system uptime
+or time since the server was created. Query parameters and request bodies do not
+configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed `hello`
@@ -139,7 +147,8 @@ dummy-api/
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the random-color handler samples
 `Math.random()` on each call, week-number reads the current UTC date on each
-call, and UUID calls `crypto.randomUUID()` on each call. They can be imported and tested directly without
+call, UUID calls `crypto.randomUUID()` on each call, and uptime samples
+`process.uptime()` on each call. They can be imported and tested directly without
 starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
@@ -184,7 +193,7 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for random-color, week-number, and UUID, the API keeps its responses deterministic
+Except for random-color, week-number, UUID, and uptime, the API keeps its responses deterministic
 so factory runs can verify explicit expected results. Random-color tests control
 the random source to verify exact formatting and generation per request.
 UUID tests check the version and variant and control the generator to verify
@@ -197,4 +206,6 @@ TZ=America/Los_Angeles node --test test/handlers/week-number.test.mjs
 TZ=Asia/Tokyo node --test test/handlers/week-number.test.mjs
 ```
 
+Uptime tests control the process uptime source to verify exact fractional values
+and sampling per request, and check real responses against process lifetime bounds.
 The checks are suitable for automation and exit with a nonzero status on failure.
