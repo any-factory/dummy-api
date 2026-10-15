@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { once } from 'node:events';
 import { request } from 'node:http';
 import { after, before, test } from 'node:test';
@@ -91,6 +92,65 @@ for (const [pathname, textInput, expectedBody] of [
     assert.equal(await response.text(), '');
   });
 }
+
+for (const pathname of ['/v2/uuid', '/v2/uuid?uuid=override&version=1']) {
+  test(`GET ${pathname} returns a lowercase UUID v4`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`);
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(Object.keys(body), ['result']);
+    assert.equal(typeof body.result, 'string');
+    assert.match(
+      body.result,
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+  });
+}
+
+test('POST uuid ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/uuid`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uuid: 'override', version: 1 }),
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(Object.keys(body), ['result']);
+  assert.equal(typeof body.result, 'string');
+  assert.match(
+    body.result,
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+});
+
+test('HEAD uuid returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/uuid`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('uuid generates once for each request', { concurrency: false }, async (t) => {
+  const values = ['550e8400-e29b-41d4-a716-446655440000', '00000000-0000-4000-8000-000000000000'];
+  const randomUUID = t.mock.method(crypto, 'randomUUID', () => values.shift());
+  const first = await fetch(`${baseUrl}/v2/uuid`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: '550e8400-e29b-41d4-a716-446655440000' });
+
+  const second = await fetch(`${baseUrl}/v2/uuid`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: '00000000-0000-4000-8000-000000000000' });
+  assert.equal(randomUUID.mock.callCount(), 2);
+});
 
 for (const pathname of [
   '/v2/week-number',
