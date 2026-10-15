@@ -78,7 +78,7 @@ Successful responses use HTTP `200` and
 | `/v2/power`         | `{"result":1024}`                                             | 2 to the power of 10 (`2 ** 10`)                           |
 | `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
 | `/v2/average`       | `{"result":5}`                                                | Arithmetic mean of `[2, 4, 6, 8]`                          |
-| `/v2/max`           | `{"result":9}`                                                | Maximum of `[3, 9, 2]`                                     |
+| `/v2/max`           | `{"result":9}`                                                | Largest of `[3, 9, 2]`                                     |
 | `/v2/temperature`   | `{"celsius":100,"fahrenheit":212}`                            | Fixed 100°C converted to 212°F                             |
 | `/v2/factorial`     | `{"input":5,"result":120}`                                    | Factorial of `5` (`5!`)                                    |
 | `/v2/is-prime`      | `{"result":true}`                                             | Checks whether the fixed input `13` is prime               |
