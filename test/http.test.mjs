@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { once } from 'node:events';
 import { request } from 'node:http';
 import { after, before, test } from 'node:test';
@@ -44,6 +45,7 @@ const routes = [
   ['/v2/is-prime', { result: true }],
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
+  ['/v2/reverse', { result: 'olleh' }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -55,6 +57,121 @@ for (const [pathname, expectedBody] of routes) {
     assert.deepEqual(await response.json(), expectedBody);
   });
 }
+
+for (const pathname of ['/v2/uuid', '/v2/uuid?uuid=override&version=1']) {
+  test(`GET ${pathname} returns a lowercase UUID v4`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`);
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(Object.keys(body), ['result']);
+    assert.equal(typeof body.result, 'string');
+    assert.match(
+      body.result,
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+  });
+}
+
+test('POST uuid ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/uuid`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uuid: 'override', version: 1 }),
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(Object.keys(body), ['result']);
+  assert.equal(typeof body.result, 'string');
+  assert.match(
+    body.result,
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+});
+
+test('HEAD uuid returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/uuid`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('uuid generates once for each request', { concurrency: false }, async (t) => {
+  const values = ['550e8400-e29b-41d4-a716-446655440000', '00000000-0000-4000-8000-000000000000'];
+  const randomUUID = t.mock.method(crypto, 'randomUUID', () => values.shift());
+  const first = await fetch(`${baseUrl}/v2/uuid`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: '550e8400-e29b-41d4-a716-446655440000' });
+
+  const second = await fetch(`${baseUrl}/v2/uuid`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: '00000000-0000-4000-8000-000000000000' });
+  assert.equal(randomUUID.mock.callCount(), 2);
+});
+
+for (const pathname of [
+  '/v2/week-number',
+  '/v2/week-number?date=2021-01-01&timezone=Asia%2FTokyo&week=1',
+]) {
+  test(`GET ${pathname} returns the current UTC ISO week`, async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+    const response = await fetch(`${baseUrl}${pathname}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { result: 42 });
+  });
+}
+
+test('POST week number ignores date, timezone, and week body inputs', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/week-number`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date: '2021-01-01', timezone: 'Asia/Tokyo', week: 1 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 42 });
+});
+
+test('HEAD week number returns the JSON headers without a response body', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/week-number`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('week number updates across Monday midnight UTC on the same server', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2024-06-02T23:59:59.999Z') });
+
+  const first = await fetch(`${baseUrl}/v2/week-number`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: 22 });
+  t.mock.timers.setTime(Date.parse('2024-06-03T00:00:00.000Z'));
+
+  const second = await fetch(`${baseUrl}/v2/week-number`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: 23 });
+});
 
 for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
   test(`GET ${pathname} returns an uppercase RGB color`, async () => {
@@ -160,6 +277,34 @@ test('uptime ignores query parameters and JSON body inputs', { concurrency: fals
 
 test('HEAD uptime returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/uptime`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('reverse query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse?text=world`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'olleh' });
+});
+
+test('POST reverse ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'world' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'olleh' });
+});
+
+test('HEAD reverse returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
