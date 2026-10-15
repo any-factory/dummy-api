@@ -19,3 +19,7 @@ test('sortNumbers returns a numerically sorted copy without mutating the input',
   assert.deepEqual(values, [10, 2, -1]);
   assert.notEqual(result, values);
 });
+
+test('sortNumbers returns an empty array for empty input', () => {
+  assert.deepEqual(sortNumbers([]), []);
+});
