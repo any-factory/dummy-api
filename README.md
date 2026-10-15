@@ -1,12 +1,13 @@
 # Dummy API
 
 Dummy API is a minimal Node.js project used to test the automated software factory
-workflow. It provides a small, deterministic codebase for implementing changes,
+workflow. It provides a small codebase for implementing changes,
 running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses. It uses Node.js built-ins, ES modules, and no runtime dependencies or
+responses, with a random-color endpoint that generates a variable response.
+It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
 English.
 
@@ -63,19 +64,26 @@ Stop the server with `Ctrl+C`.
 Successful responses use HTTP `200` and
 `Content-Type: application/json; charset=utf-8`.
 
-| Path            | JSON response              | Meaning                                 |
-| --------------- | -------------------------- | --------------------------------------- |
-| `/`             | `{"hello":"world"}`        | Greeting                                |
-| `/status`       | `{"ok":true}`              | Health check                            |
-| `/v2/add`       | `{"result":2}`             | `1 + 1`                                 |
-| `/v2/subtract`  | `{"result":7}`             | `10 - 3`                                |
-| `/v2/multiply`  | `{"result":42}`            | `6 * 7`                                 |
-| `/v2/divide`    | `{"result":5}`             | `20 / 4`                                |
-| `/v2/modulo`    | `{"result":2}`             | `17 % 5`                                |
-| `/v2/sqrt`      | `{"result":8}`             | Square root of `64`                     |
-| `/v2/round`     | `{"result":3.14}`          | `3.14159` rounded to two decimal places |
-| `/v2/factorial` | `{"input":5,"result":120}` | Factorial of `5` (`5!`)                 |
-| `/v2/fibonacci` | `{"result":13}`            | F(7) = 13, with F(0) = 0                |
+| Path               | JSON response                   | Meaning                                 |
+| ------------------ | ------------------------------- | --------------------------------------- |
+| `/`                | `{"hello":"world"}`             | Greeting                                |
+| `/status`          | `{"ok":true}`                   | Health check                            |
+| `/v2/add`          | `{"result":2}`                  | `1 + 1`                                 |
+| `/v2/subtract`     | `{"result":7}`                  | `10 - 3`                                |
+| `/v2/multiply`     | `{"result":42}`                 | `6 * 7`                                 |
+| `/v2/divide`       | `{"result":5}`                  | `20 / 4`                                |
+| `/v2/modulo`       | `{"result":2}`                  | `17 % 5`                                |
+| `/v2/sqrt`         | `{"result":8}`                  | Square root of `64`                     |
+| `/v2/round`        | `{"result":3.14}`               | `3.14159` rounded to two decimal places |
+| `/v2/factorial`    | `{"input":5,"result":120}`      | Factorial of `5` (`5!`)                 |
+| `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                |
+| `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                        |
+
+The random-color endpoint draws a fresh RGB color on every request. Its `color`
+value has a `#` followed by six uppercase hexadecimal digits, preserving leading
+zeros (for example, `#00000A`). All values from `#000000` through `#FFFFFF` are
+possible, and colors may repeat. Query parameters and request bodies do not
+configure the generator.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs. Known routes also accept other
@@ -98,7 +106,7 @@ dummy-api/
 │   ├── server.mjs          # Executable entry point and port configuration
 │   ├── app.mjs             # HTTP server creation and JSON responses
 │   ├── routes.mjs          # Mapping from paths to handlers
-│   └── handlers/           # One pure function per endpoint
+│   └── handlers/           # One function per endpoint
 ├── test/
 │   ├── handlers/           # A separate unit test file for every handler
 │   └── http.test.mjs        # HTTP integration tests
@@ -109,7 +117,9 @@ dummy-api/
 ```
 
 Handlers return plain objects and do not depend on HTTP request or response
-objects. They can be imported and tested directly without starting a server.
+objects. Fixed-response handlers are pure; the random-color handler samples
+`Math.random()` on each call. They can be imported and tested directly without
+starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
 
@@ -153,6 +163,7 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-The API keeps its responses deterministic so factory runs can verify explicit
-expected results. The checks are suitable for automation and exit with a nonzero
-status on failure.
+Except for random-color, the API keeps its responses deterministic so factory
+runs can verify explicit expected results. Random-color tests control the random
+source to verify exact formatting and generation per request. The checks are
+suitable for automation and exit with a nonzero status on failure.

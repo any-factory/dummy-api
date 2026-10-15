@@ -5,6 +5,7 @@ import { fibonacci } from './handlers/fibonacci.mjs';
 import { hello } from './handlers/hello.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
+import { randomColor } from './handlers/random-color.mjs';
 import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
@@ -22,6 +23,7 @@ const routes = new Map([
   ['/v2/round', round],
   ['/v2/factorial', factorial],
   ['/v2/fibonacci', fibonacci],
+  ['/v2/random-color', randomColor],
 ]);
 
 export function findHandler(pathname) {
