@@ -84,6 +84,7 @@ Successful responses use HTTP `200` and
 | `/v2/palindrome`    | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`     | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`       | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
+| `/v2/length`        | `{"result":5}`                                                | Length of the fixed string `hello`                         |
 | `/v2/sort`          | `{"result":[1,2,3,5,8]}`                                      | Fixed array sorted in ascending numeric order              |
 | `/v2/base64`        | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
 | `/v2/uppercase`     | `{"result":"HELLO"}`                                          | Uppercase of the fixed string `hello`                      |
@@ -155,7 +156,9 @@ configure the measurement.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or configure the fixed text
-inputs of the reverse, Base64, uppercase, lowercase, word-count, or slug endpoints.
+inputs of the reverse, length, Base64, uppercase, lowercase, word-count, or slug endpoints.
+The length endpoint always returns `{"result":5}`, the length of the fixed string
+`hello`; query parameters and request bodies do not override the source or result.
 The word-count endpoint always counts the fixed phrase `Hello from the API`;
 query parameters and request bodies do not override it. The slug endpoint always
 converts the fixed string `Hello World` to `hello-world`; query parameters and

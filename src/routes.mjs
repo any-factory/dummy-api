@@ -8,6 +8,7 @@ import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
 import { hello } from './handlers/hello.mjs';
 import { isPrime } from './handlers/is-prime.mjs';
+import { length } from './handlers/length.mjs';
 import { lowercase } from './handlers/lowercase.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
@@ -47,6 +48,7 @@ const routes = new Map([
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
   ['/v2/reverse', reverse],
+  ['/v2/length', length],
   ['/v2/sort', sort],
   ['/v2/base64', base64],
   ['/v2/uppercase', uppercase],

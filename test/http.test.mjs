@@ -49,6 +49,7 @@ const routes = [
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
   ['/v2/reverse', { result: 'olleh' }],
+  ['/v2/length', { result: 5 }],
   ['/v2/sort', { result: [1, 2, 3, 5, 8] }],
   ['/v2/base64', { base64: 'aGVsbG8=' }],
   ['/v2/uppercase', { result: 'HELLO' }],
@@ -100,6 +101,34 @@ for (const [pathname, textInput, expectedBody] of [
     assert.equal(await response.text(), '');
   });
 }
+
+test('GET length ignores text, input, and result query parameters', async () => {
+  const response = await fetch(`${baseUrl}/v2/length?text=worldwide&input=x&result=99`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 5 });
+});
+
+test('POST length ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/length`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'worldwide', input: 'x', result: 99 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 5 });
+});
+
+test('HEAD length returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/length`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 test('GET word-count ignores text and input query parameters', async () => {
   const response = await fetch(`${baseUrl}/v2/word-count?text=one&input=one`);
