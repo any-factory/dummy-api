@@ -45,6 +45,8 @@ const routes = [
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
   ['/v2/reverse', { result: 'olleh' }],
+  ['/v2/uppercase', { result: 'HELLO' }],
+  ['/v2/lowercase', { result: 'hello' }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -54,6 +56,39 @@ for (const [pathname, expectedBody] of routes) {
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
     assert.deepEqual(await response.json(), expectedBody);
+  });
+}
+
+for (const [pathname, textInput, expectedBody] of [
+  ['/v2/uppercase', 'world', { result: 'HELLO' }],
+  ['/v2/lowercase', 'WORLD', { result: 'hello' }],
+]) {
+  test(`GET ${pathname} ignores text query parameters`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}?text=${textInput}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), expectedBody);
+  });
+
+  test(`POST ${pathname} ignores JSON body inputs`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: textInput }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), expectedBody);
+  });
+
+  test(`HEAD ${pathname} returns the JSON headers without a response body`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`, { method: 'HEAD' });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.equal(await response.text(), '');
   });
 }
 
