@@ -13,6 +13,7 @@ import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { weekNumber } from './handlers/week-number.mjs';
 
 const routes = new Map([
   ['/', hello],
@@ -30,6 +31,7 @@ const routes = new Map([
   ['/v2/fibonacci', fibonacci],
   ['/v2/reverse', reverse],
   ['/v2/random-color', randomColor],
+  ['/v2/week-number', weekNumber],
 ]);
 
 export function findHandler(pathname) {

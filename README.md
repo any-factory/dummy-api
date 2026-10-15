@@ -6,7 +6,8 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with a random-color endpoint that generates a variable response.
+responses, with random-color and current-week endpoints that generate variable
+responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
 English.
@@ -81,12 +82,20 @@ Successful responses use HTTP `200` and
 | `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`      | `{"result":"olleh"}`            | Reverse of the fixed string `hello`                        |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                                           |
+| `/v2/week-number`  | `{"result":42}` (example)       | Current ISO week number in UTC                             |
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
 value has a `#` followed by six uppercase hexadecimal digits, preserving leading
 zeros (for example, `#00000A`). All values from `#000000` through `#FFFFFF` are
 possible, and colors may repeat. Query parameters and request bodies do not
 configure the generator.
+
+The week-number endpoint reads the current server clock on every request and
+returns the ISO 8601 week number in UTC as an integer from 1 through 53. Weeks
+begin on Monday at 00:00 UTC, and week 1 contains January 4. Near New Year, the
+ISO week year can differ from the calendar year: January 1, 2021 is in week 53,
+while December 31, 2018 is in week 1. Query parameters and request bodies do not
+configure the date, timezone, or week number.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs or the reverse endpoint's string
@@ -122,7 +131,8 @@ dummy-api/
 
 Handlers return plain objects and do not depend on HTTP request or response
 objects. Fixed-response handlers are pure; the random-color handler samples
-`Math.random()` on each call. They can be imported and tested directly without
+`Math.random()` on each call, and week-number reads the current UTC date on each
+call. They can be imported and tested directly without
 starting a server.
 `createApp()` returns an HTTP server without opening a port; `server.mjs` owns
 startup.
@@ -167,7 +177,16 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for random-color, the API keeps its responses deterministic so factory
-runs can verify explicit expected results. Random-color tests control the random
-source to verify exact formatting and generation per request. The checks are
-suitable for automation and exit with a nonzero status on failure.
+Except for random-color and week-number, the API keeps its responses deterministic
+so factory runs can verify explicit expected results. Random-color tests control
+the random source to verify exact formatting and generation per request.
+Week-number tests freeze the clock to verify ISO year rollovers, leap day, and
+changes at Monday midnight UTC. Run its handler tests under different host
+timezones to verify UTC independence:
+
+```sh
+TZ=America/Los_Angeles node --test test/handlers/week-number.test.mjs
+TZ=Asia/Tokyo node --test test/handlers/week-number.test.mjs
+```
+
+The checks are suitable for automation and exit with a nonzero status on failure.

@@ -57,6 +57,62 @@ for (const [pathname, expectedBody] of routes) {
   });
 }
 
+for (const pathname of [
+  '/v2/week-number',
+  '/v2/week-number?date=2021-01-01&timezone=Asia%2FTokyo&week=1',
+]) {
+  test(`GET ${pathname} returns the current UTC ISO week`, async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+    const response = await fetch(`${baseUrl}${pathname}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { result: 42 });
+  });
+}
+
+test('POST week number ignores date, timezone, and week body inputs', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/week-number`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date: '2021-01-01', timezone: 'Asia/Tokyo', week: 1 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 42 });
+});
+
+test('HEAD week number returns the JSON headers without a response body', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/week-number`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('week number updates across Monday midnight UTC on the same server', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2024-06-02T23:59:59.999Z') });
+
+  const first = await fetch(`${baseUrl}/v2/week-number`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: 22 });
+  t.mock.timers.setTime(Date.parse('2024-06-03T00:00:00.000Z'));
+
+  const second = await fetch(`${baseUrl}/v2/week-number`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: 23 });
+});
+
 for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
   test(`GET ${pathname} returns an uppercase RGB color`, async () => {
     const response = await fetch(`${baseUrl}${pathname}`);
