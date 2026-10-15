@@ -68,6 +68,7 @@ Successful responses use HTTP `200` and
 | ------------------ | ------------------------------- | --------------------------------------- |
 | `/`                | `{"hello":"world"}`             | Greeting                                |
 | `/status`          | `{"ok":true}`                   | Health check                            |
+| `/v2/health`       | `{"status":"ok"}`               | Health check                            |
 | `/v2/add`          | `{"result":2}`                  | `1 + 1`                                 |
 | `/v2/subtract`     | `{"result":7}`                  | `10 - 3`                                |
 | `/v2/multiply`     | `{"result":42}`                 | `6 * 7`                                 |

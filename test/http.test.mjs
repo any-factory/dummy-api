@@ -33,6 +33,7 @@ after(async () => {
 const routes = [
   ['/', { hello: 'world' }],
   ['/status', { ok: true }],
+  ['/v2/health', { status: 'ok' }],
   ['/v2/add', { result: 2 }],
   ['/v2/subtract', { result: 7 }],
   ['/v2/multiply', { result: 42 }],
@@ -53,6 +54,34 @@ for (const [pathname, expectedBody] of routes) {
     assert.deepEqual(await response.json(), expectedBody);
   });
 }
+
+test('health query parameters do not change the fixed status', async () => {
+  const response = await fetch(`${baseUrl}/v2/health?status=down`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { status: 'ok' });
+});
+
+test('POST health ignores JSON body inputs and preserves the fixed status', async () => {
+  const response = await fetch(`${baseUrl}/v2/health`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'down' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { status: 'ok' });
+});
+
+test('HEAD health returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/health`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
 
 for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
   test(`GET ${pathname} returns an uppercase RGB color`, async () => {

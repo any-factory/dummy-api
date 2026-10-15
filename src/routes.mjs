@@ -2,6 +2,7 @@ import { add } from './handlers/add.mjs';
 import { divide } from './handlers/divide.mjs';
 import { factorial } from './handlers/factorial.mjs';
 import { fibonacci } from './handlers/fibonacci.mjs';
+import { health } from './handlers/health.mjs';
 import { hello } from './handlers/hello.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
@@ -14,6 +15,7 @@ import { subtract } from './handlers/subtract.mjs';
 const routes = new Map([
   ['/', hello],
   ['/status', status],
+  ['/v2/health', health],
   ['/v2/add', add],
   ['/v2/subtract', subtract],
   ['/v2/multiply', multiply],
