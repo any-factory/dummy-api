@@ -46,7 +46,7 @@ const routes = [
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
   ['/v2/reverse', { result: 'olleh' }],
-  ['/v2/base64', { result: 'aGVsbG8=' }],
+  ['/v2/base64', { base64: 'aGVsbG8=' }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -228,7 +228,7 @@ test('base64 query parameters do not change the fixed result', async () => {
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
-  assert.deepEqual(await response.json(), { result: 'aGVsbG8=' });
+  assert.deepEqual(await response.json(), { base64: 'aGVsbG8=' });
 });
 
 test('POST base64 ignores JSON body inputs and preserves the fixed result', async () => {
@@ -240,7 +240,7 @@ test('POST base64 ignores JSON body inputs and preserves the fixed result', asyn
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
-  assert.deepEqual(await response.json(), { result: 'aGVsbG8=' });
+  assert.deepEqual(await response.json(), { base64: 'aGVsbG8=' });
 });
 
 test('HEAD base64 returns the JSON headers without a response body', async () => {

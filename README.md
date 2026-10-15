@@ -81,7 +81,7 @@ Successful responses use HTTP `200` and
 | `/v2/palindrome`   | `{"result":true}`                                             | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`    | `{"result":13}`                                               | F(7) = 13, with F(0) = 0                                   |
 | `/v2/reverse`      | `{"result":"olleh"}`                                          | Reverse of the fixed string `hello`                        |
-| `/v2/base64`       | `{"result":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
+| `/v2/base64`       | `{"base64":"aGVsbG8="}`                                       | Padded Base64 encoding of the fixed UTF-8 string `hello`   |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
