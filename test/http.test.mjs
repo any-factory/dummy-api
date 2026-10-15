@@ -44,6 +44,7 @@ const routes = [
   ['/v2/is-prime', { result: true }],
   ['/v2/palindrome', { result: true }],
   ['/v2/fibonacci', { result: 13 }],
+  ['/v2/reverse', { result: 'olleh' }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -103,6 +104,34 @@ test('random color draws a new sample for each request', { concurrency: false },
 
   assert.deepEqual(await second.json(), { color: '#1A2B3C' });
   assert.equal(random.mock.callCount(), 2);
+});
+
+test('reverse query parameters do not change the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse?text=world`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'olleh' });
+});
+
+test('POST reverse ignores JSON body inputs and preserves the fixed result', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: 'world' }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 'olleh' });
+});
+
+test('HEAD reverse returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/reverse`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
 });
 
 test('fibonacci query parameters do not change the fixed result', async () => {

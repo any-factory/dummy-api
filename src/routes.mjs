@@ -8,6 +8,7 @@ import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { palindrome } from './handlers/palindrome.mjs';
 import { randomColor } from './handlers/random-color.mjs';
+import { reverse } from './handlers/reverse.mjs';
 import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
@@ -27,6 +28,7 @@ const routes = new Map([
   ['/v2/is-prime', isPrime],
   ['/v2/palindrome', palindrome],
   ['/v2/fibonacci', fibonacci],
+  ['/v2/reverse', reverse],
   ['/v2/random-color', randomColor],
 ]);
 

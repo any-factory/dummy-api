@@ -79,6 +79,7 @@ Successful responses use HTTP `200` and
 | `/v2/is-prime`     | `{"result":true}`               | Checks whether the fixed input `13` is prime               |
 | `/v2/palindrome`   | `{"result":true}`               | Checks whether the fixed input `"racecar"` is a palindrome |
 | `/v2/fibonacci`    | `{"result":13}`                 | F(7) = 13, with F(0) = 0                                   |
+| `/v2/reverse`      | `{"result":"olleh"}`            | Reverse of the fixed string `hello`                        |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example) | Random RGB color                                           |
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
@@ -88,8 +89,9 @@ possible, and colors may repeat. Query parameters and request bodies do not
 configure the generator.
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
-request bodies do not supply arithmetic inputs. Known routes also accept other
-HTTP methods; `HEAD` returns headers without a response body.
+request bodies do not supply arithmetic inputs or the reverse endpoint's string
+input. Known routes also accept other HTTP methods; `HEAD` returns headers without
+a response body.
 
 Unknown paths return HTTP `404` with `{"error":"Not found"}`. Malformed URLs that
 reach the application return HTTP `400` with `{"error":"Bad request"}`.
