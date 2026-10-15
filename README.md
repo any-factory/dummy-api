@@ -76,6 +76,7 @@ Successful responses use HTTP `200` and
 | `/v2/round`     | `{"result":3.14}`          | `3.14159` rounded to two decimal places      |
 | `/v2/factorial` | `{"input":5,"result":120}` | Factorial of `5` (`5!`)                      |
 | `/v2/is-prime`  | `{"result":true}`          | Checks whether the fixed input `13` is prime |
+| `/v2/fibonacci` | `{"result":13}`            | F(7) = 13, with F(0) = 0                     |
 
 Routing uses only the URL pathname, as in the source project. Query parameters and
 request bodies do not supply arithmetic inputs. Known routes also accept other
