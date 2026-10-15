@@ -22,6 +22,7 @@ import { round } from './handlers/round.mjs';
 import { slug } from './handlers/slug.mjs';
 import { sort } from './handlers/sort.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
+import { square } from './handlers/square.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
 import { temperature } from './handlers/temperature.mjs';
@@ -43,6 +44,7 @@ const routes = new Map([
   ['/v2/sqrt', sqrt],
   ['/v2/power', power],
   ['/v2/cube', cube],
+  ['/v2/square', square],
   ['/v2/round', round],
   ['/v2/average', average],
   ['/v2/max', max],
