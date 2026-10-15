@@ -1,6 +1,7 @@
 import { add } from './handlers/add.mjs';
 import { divide } from './handlers/divide.mjs';
 import { hello } from './handlers/hello.mjs';
+import { isPrime } from './handlers/is-prime.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
@@ -16,6 +17,7 @@ const routes = new Map([
   ['/v2/divide', divide],
   ['/v2/sqrt', sqrt],
   ['/v2/round', round],
+  ['/v2/is-prime', isPrime],
 ]);
 
 export function findHandler(pathname) {

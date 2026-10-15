@@ -39,6 +39,7 @@ const routes = [
   ['/v2/divide', { result: 5 }],
   ['/v2/sqrt', { result: 8 }],
   ['/v2/round', { result: 3.14 }],
+  ['/v2/is-prime', { result: true }],
 ];
 
 for (const [pathname, expectedBody] of routes) {
@@ -71,6 +72,32 @@ test('POST round ignores JSON body inputs and preserves the fixed result', async
 
 test('HEAD round returns the JSON headers without a response body', async () => {
   const response = await fetch(`${baseUrl}/v2/round`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('is-prime ignores query parameters for the number', async () => {
+  const response = await fetch(`${baseUrl}/v2/is-prime?number=12`);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: true });
+});
+
+test('POST is-prime ignores JSON body inputs and checks the fixed number', async () => {
+  const response = await fetch(`${baseUrl}/v2/is-prime`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ number: 12 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: true });
+});
+
+test('HEAD is-prime returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/is-prime`, { method: 'HEAD' });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
