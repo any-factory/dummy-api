@@ -1,5 +1,6 @@
 import { add } from './handlers/add.mjs';
 import { divide } from './handlers/divide.mjs';
+import { factorial } from './handlers/factorial.mjs';
 import { hello } from './handlers/hello.mjs';
 import { multiply } from './handlers/multiply.mjs';
 import { round } from './handlers/round.mjs';
@@ -16,6 +17,7 @@ const routes = new Map([
   ['/v2/divide', divide],
   ['/v2/sqrt', sqrt],
   ['/v2/round', round],
+  ['/v2/factorial', factorial],
 ]);
 
 export function findHandler(pathname) {
