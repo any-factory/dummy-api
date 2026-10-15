@@ -238,6 +238,82 @@ test('week number updates across Monday midnight UTC on the same server', async 
   assert.deepEqual(await second.json(), { result: 23 });
 });
 
+for (const [instant, result] of [
+  ['2026-10-15T12:00:00.000Z', 31],
+  ['2026-04-15T12:00:00.000Z', 30],
+  ['2023-02-15T12:00:00.000Z', 28],
+  ['2024-02-15T12:00:00.000Z', 29],
+]) {
+  test(`GET days in month at ${instant} returns ${result}`, async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse(instant) });
+
+    const response = await fetch(`${baseUrl}/v2/days-in-month`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { result });
+  });
+}
+
+test('GET days in month ignores date, year, month, timezone, and result query inputs', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(
+    `${baseUrl}/v2/days-in-month?date=2023-02-01&year=2023&month=2&timezone=Asia%2FTokyo&result=1`,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 31 });
+});
+
+test('POST days in month ignores date, year, month, timezone, and result body inputs', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/days-in-month`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date: '2023-02-01',
+      year: 2023,
+      month: 2,
+      timezone: 'Asia/Tokyo',
+      result: 1,
+    }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await response.json(), { result: 31 });
+});
+
+test('HEAD days in month returns the JSON headers without a response body', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-15T12:00:00.000Z') });
+
+  const response = await fetch(`${baseUrl}/v2/days-in-month`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('days in month updates across month-end midnight UTC on the same server', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2024-02-29T23:59:59.999Z') });
+
+  const first = await fetch(`${baseUrl}/v2/days-in-month`);
+
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await first.json(), { result: 29 });
+  t.mock.timers.setTime(Date.parse('2024-03-01T00:00:00.000Z'));
+
+  const second = await fetch(`${baseUrl}/v2/days-in-month`);
+
+  assert.equal(second.status, 200);
+  assert.equal(second.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(await second.json(), { result: 31 });
+});
+
 for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
   test(`GET ${pathname} returns an uppercase RGB color`, async () => {
     const response = await fetch(`${baseUrl}${pathname}`);
