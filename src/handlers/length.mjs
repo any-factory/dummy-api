@@ -1,3 +1,5 @@
+const INPUT = 'hello';
+
 export function length() {
-  return { result: 'hello'.length };
+  return { result: INPUT.length };
 }
