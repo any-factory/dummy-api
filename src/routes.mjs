@@ -13,6 +13,7 @@ import { palindrome } from './handlers/palindrome.mjs';
 import { randomColor } from './handlers/random-color.mjs';
 import { reverse } from './handlers/reverse.mjs';
 import { round } from './handlers/round.mjs';
+import { slug } from './handlers/slug.mjs';
 import { sort } from './handlers/sort.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
@@ -44,6 +45,7 @@ const routes = new Map([
   ['/v2/uppercase', uppercase],
   ['/v2/lowercase', lowercase],
   ['/v2/word-count', wordCount],
+  ['/v2/slug', slug],
   ['/v2/unique', unique],
   ['/v2/random-color', randomColor],
   ['/v2/coin', coin],
