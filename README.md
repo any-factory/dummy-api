@@ -6,7 +6,7 @@ running automated checks, reviewing results, and verifying delivery from task to
 completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
-responses, with random-color, current-week, UUID, and uptime endpoints that generate
+responses, with coin, random-color, current-week, UUID, and uptime endpoints that generate
 variable responses.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
@@ -87,6 +87,7 @@ Successful responses use HTTP `200` and
 | `/v2/lowercase`    | `{"result":"hello"}`                                          | Lowercase of the fixed string `HELLO`                      |
 | `/v2/word-count`   | `{"result":4}`                                                | Word count of the fixed string `Hello from the API`        |
 | `/v2/unique`       | `{"result":[1,2,3,4]}`                                        | Remove duplicates from `[1, 2, 2, 3, 3, 4]`                |
+| `/v2/coin`         | `{"result":"heads"}` (example)                                | Random coin flip                                           |
 | `/v2/random-color` | `{"color":"#1A2B3C"}` (example)                               | Random RGB color                                           |
 | `/v2/week-number`  | `{"result":42}` (example)                                     | Current ISO week number in UTC                             |
 | `/v2/uuid`         | `{"result":"550e8400-e29b-41d4-a716-446655440000"}` (example) | Random UUID v4                                             |
@@ -104,6 +105,12 @@ The UUID endpoint generates a fresh UUID v4 on every request using Node's built-
 `crypto.randomUUID()`. The `result` is a lowercase, hyphenated, 36-character UUID
 with the RFC variant. Query parameters and request bodies do not configure
 generation or override the result. The table shows an example, not a fixed value.
+
+The coin endpoint samples `Math.random()` once per request, returning either
+`{"result":"heads"}` or `{"result":"tails"}` with equal probability. Samples below
+`0.5` produce heads; samples at or above `0.5` produce tails. Consecutive outcomes
+may repeat. Query parameters and request bodies do not control the outcome, seed,
+or probability.
 
 The random-color endpoint draws a fresh RGB color on every request. Its `color`
 value has a `#` followed by six uppercase hexadecimal digits, preserving leading
@@ -161,7 +168,7 @@ dummy-api/
 ```
 
 Handlers return plain objects and do not depend on HTTP request or response
-objects. Fixed-response handlers are pure; the random-color handler samples
+objects. Fixed-response handlers are pure; the coin and random-color handlers sample
 `Math.random()` on each call, week-number reads the current UTC date on each
 call, UUID calls `crypto.randomUUID()` on each call, and uptime samples
 `process.uptime()` on each call. They can be imported and tested directly without
@@ -209,8 +216,10 @@ New endpoints belong in `src/handlers/`, with their path registered in
 `src/routes.mjs`, direct tests in `test/handlers/`, and HTTP coverage in
 `test/http.test.mjs`.
 
-Except for random-color, week-number, UUID, and uptime, the API keeps its responses deterministic
-so factory runs can verify explicit expected results. Random-color tests control
+Except for coin, random-color, week-number, UUID, and uptime, the API keeps its responses deterministic
+so factory runs can verify explicit expected results. Coin tests control the random
+source to verify the heads/tails boundary, fresh sampling per request, and allowed
+repeated outcomes. Random-color tests control
 the random source to verify exact formatting and generation per request.
 UUID tests check the version and variant and control the generator to verify
 exact payloads and generation per request. Week-number tests freeze the clock to verify ISO year rollovers, leap day, and
