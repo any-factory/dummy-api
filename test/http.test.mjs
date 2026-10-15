@@ -55,6 +55,55 @@ for (const [pathname, expectedBody] of routes) {
   });
 }
 
+for (const pathname of ['/v2/random-color', '/v2/random-color?color=red']) {
+  test(`GET ${pathname} returns an uppercase RGB color`, async () => {
+    const response = await fetch(`${baseUrl}${pathname}`);
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(Object.keys(body), ['color']);
+    assert.equal(typeof body.color, 'string');
+    assert.match(body.color, /^#[0-9A-F]{6}$/);
+  });
+}
+
+test('POST random color ignores JSON body inputs', async () => {
+  const response = await fetch(`${baseUrl}/v2/random-color`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ color: 'red' }),
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.deepEqual(Object.keys(body), ['color']);
+  assert.equal(typeof body.color, 'string');
+  assert.match(body.color, /^#[0-9A-F]{6}$/);
+});
+
+test('HEAD random color returns the JSON headers without a response body', async () => {
+  const response = await fetch(`${baseUrl}/v2/random-color`, { method: 'HEAD' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), '');
+});
+
+test('random color draws a new sample for each request', { concurrency: false }, async (t) => {
+  const values = [0, 0x1a2b3c / 0x1000000];
+  const random = t.mock.method(Math, 'random', () => values.shift());
+  const first = await fetch(`${baseUrl}/v2/random-color`);
+
+  assert.deepEqual(await first.json(), { color: '#000000' });
+
+  const second = await fetch(`${baseUrl}/v2/random-color`);
+
+  assert.deepEqual(await second.json(), { color: '#1A2B3C' });
+  assert.equal(random.mock.callCount(), 2);
+});
+
 test('fibonacci query parameters do not change the fixed result', async () => {
   const response = await fetch(`${baseUrl}/v2/fibonacci?n=10`);
 
