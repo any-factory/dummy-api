@@ -15,6 +15,7 @@ import { round } from './handlers/round.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
+import { unique } from './handlers/unique.mjs';
 import { uppercase } from './handlers/uppercase.mjs';
 import { uptime } from './handlers/uptime.mjs';
 import { uuid } from './handlers/uuid.mjs';
@@ -38,6 +39,7 @@ const routes = new Map([
   ['/v2/base64', base64],
   ['/v2/uppercase', uppercase],
   ['/v2/lowercase', lowercase],
+  ['/v2/unique', unique],
   ['/v2/random-color', randomColor],
   ['/v2/week-number', weekNumber],
   ['/v2/uuid', uuid],
