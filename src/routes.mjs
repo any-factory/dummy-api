@@ -15,6 +15,7 @@ import { max } from './handlers/max.mjs';
 import { min } from './handlers/min.mjs';
 import { modulo } from './handlers/modulo.mjs';
 import { multiply } from './handlers/multiply.mjs';
+import { negate } from './handlers/negate.mjs';
 import { palindrome } from './handlers/palindrome.mjs';
 import { power } from './handlers/power.mjs';
 import { randomColor } from './handlers/random-color.mjs';
@@ -46,6 +47,7 @@ const routes = new Map([
   ['/v2/power', power],
   ['/v2/cube', cube],
   ['/v2/square', square],
+  ['/v2/negate', negate],
   ['/v2/round', round],
   ['/v2/average', average],
   ['/v2/max', max],
