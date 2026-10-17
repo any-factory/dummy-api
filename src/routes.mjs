@@ -25,6 +25,7 @@ import { round } from './handlers/round.mjs';
 import { slug } from './handlers/slug.mjs';
 import { sort } from './handlers/sort.mjs';
 import { sqrt } from './handlers/sqrt.mjs';
+import { squareOf } from './handlers/square-of.mjs';
 import { square } from './handlers/square.mjs';
 import { status } from './handlers/status.mjs';
 import { subtract } from './handlers/subtract.mjs';
@@ -48,6 +49,7 @@ const routes = new Map([
   ['/v2/power', power],
   ['/v2/cube', cube],
   ['/v2/square', square],
+  ['/v2/square-of', squareOf],
   ['/v2/abs', abs],
   ['/v2/negate', negate],
   ['/v2/round', round],

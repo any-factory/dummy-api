@@ -7,7 +7,7 @@ completed change.
 
 The project is based on `test-github-main` and preserves its routes and fixed JSON
 responses, with coin, random-color, current-week, days-in-month, UUID, and uptime endpoints that generate
-variable responses.
+variable responses. The square-of endpoint squares a supplied query value.
 It uses Node.js built-ins, ES modules, and no runtime dependencies or
 build step. All documentation, source code, comments, and package metadata are in
 English.
@@ -78,6 +78,7 @@ Successful responses use HTTP `200` and
 | `/v2/power`         | `{"result":1024}`                                             | 2 to the power of 10 (`2 ** 10`)                           |
 | `/v2/cube`          | `{"result":27}`                                               | 3 to the power of 3 (`3 ** 3`)                             |
 | `/v2/square`        | `{"result":144}`                                              | Square of `12` (`12 ** 2`)                                 |
+| `/v2/square-of`     | `{"result":25}`                                               | Square of the supplied `value` (example: `value=5`)        |
 | `/v2/abs`           | `{"result":7}`                                                | Absolute value of `-7` (`Math.abs(-7)`)                    |
 | `/v2/negate`        | `{"result":-7}`                                               | Negation of fixed input `7` (`-7`)                         |
 | `/v2/round`         | `{"result":3.14}`                                             | `3.14159` rounded to two decimal places                    |
@@ -111,6 +112,22 @@ Query parameters and request bodies do not override the base, exponent, or resul
 The square endpoint squares the fixed input `12` using `12 ** 2`, returning
 `{"result":144}`. Query parameters and request bodies do not override the input
 or result.
+
+The square-of endpoint accepts `GET /v2/square-of?value=<number>` and returns
+`{"result":value * value}` with HTTP `200`. For example, `value=-3` returns
+`{"result":9}` and `value=1.5` returns `{"result":2.25}`. It uses the first `value`
+parameter, trims whitespace, and converts the complete string with JavaScript
+`Number`. Positive and negative values, zero, fractions, and exponent notation
+are accepted. Encode a literal plus sign as `%2B` in the query.
+
+Missing, empty, whitespace-only, non-numeric, and non-finite values return HTTP
+`400` with `{"error":"value must be a number"}`. A finite input whose square
+is not finite, such as `value=1e200`, returns HTTP `400` with
+`{"error":"result out of range"}`. Calculations use JavaScript numbers with normal
+floating-point rounding; both the input and square must be finite representable
+numbers.
+Success and error responses use `Content-Type: application/json; charset=utf-8`.
+Request bodies do not supply the value.
 
 The abs endpoint calculates the absolute value of the fixed input `-7` using
 `Math.abs(-7)`, returning `{"result":7}`. Query parameters and request bodies do
@@ -183,9 +200,10 @@ process restarts; it measures process lifetime rather than operating-system upti
 or time since the server was created. Query parameters and request bodies do not
 configure the measurement.
 
-Routing uses only the URL pathname, as in the source project. Query parameters and
-request bodies do not supply arithmetic inputs or configure the fixed text
-inputs of the reverse, length, Base64, uppercase, lowercase, word-count, or slug endpoints.
+Routing uses only the URL pathname, as in the source project. Except for the
+square-of query value, query parameters and request bodies do not supply
+arithmetic inputs or configure the fixed text inputs of the reverse, length,
+Base64, uppercase, lowercase, word-count, or slug endpoints.
 The length endpoint always returns `{"result":5}`, the length of the fixed string
 `hello`; query parameters and request bodies do not override the source or result.
 The word-count endpoint always counts the fixed phrase `Hello from the API`;

@@ -43,6 +43,7 @@ const routes = [
   ['/v2/power', { result: 1024 }],
   ['/v2/cube', { result: 27 }],
   ['/v2/square', { result: 144 }],
+  ['/v2/square-of?value=5', { result: 25 }],
   ['/v2/abs', { result: 7 }],
   ['/v2/negate', { result: -7 }],
   ['/v2/round', { result: 3.14 }],
@@ -828,6 +829,101 @@ test('HEAD cube returns the JSON headers without a response body', async () => {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
   assert.equal(await response.text(), '');
+});
+
+for (const [query, result] of [
+  ['value=-3', 9],
+  ['value=0', 0],
+  ['value=1.5', 2.25],
+  ['value=1e2', 10000],
+  ['value=1e154', 1e308],
+  ['value=%2B3', 9],
+  ['value=%202%20', 4],
+  ['value=3&value=5', 9],
+]) {
+  test(`GET square-of with ${query} returns the square`, async () => {
+    const response = await fetch(`${baseUrl}/v2/square-of?${query}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { result });
+  });
+}
+
+for (const query of [
+  '',
+  '?number=5',
+  '?value=',
+  '?value=++',
+  '?value=%09%0A',
+  '?value=abc',
+  '?value=12abc',
+  '?value=NaN',
+  '?value=Infinity',
+  '?value=-Infinity',
+  '?value=1e309',
+  '?value=&value=5',
+]) {
+  test(`GET square-of with ${JSON.stringify(query)} returns a JSON 400`, async () => {
+    const response = await fetch(`${baseUrl}/v2/square-of${query}`);
+
+    assert.equal(response.status, 400);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { error: 'value must be a number' });
+  });
+}
+
+for (const value of ['1e200', '-1e200']) {
+  test(`GET square-of with value=${value} returns a range error`, async () => {
+    const response = await fetch(`${baseUrl}/v2/square-of?value=${value}`);
+
+    assert.equal(response.status, 400);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { error: 'result out of range' });
+  });
+}
+
+for (const [query, status] of [
+  ['?value=5', 200],
+  ['?value=1e200', 400],
+  ['?value=abc', 400],
+  ['', 400],
+]) {
+  test(`HEAD square-of with ${JSON.stringify(query)} returns ${status} without a body`, async () => {
+    const response = await fetch(`${baseUrl}/v2/square-of${query}`, { method: 'HEAD' });
+
+    assert.equal(response.status, status);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.equal(await response.text(), '');
+  });
+}
+
+test('POST square-of uses the query value and ignores the request body', async () => {
+  const response = await fetch(`${baseUrl}/v2/square-of?value=3`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value: 5 }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { result: 9 });
+});
+
+test('square-of validation failures do not affect subsequent requests', async () => {
+  const invalid = await fetch(`${baseUrl}/v2/square-of?value=abc`);
+
+  assert.equal(invalid.status, 400);
+  assert.deepEqual(await invalid.json(), { error: 'value must be a number' });
+
+  const valid = await fetch(`${baseUrl}/v2/square-of?value=5`);
+
+  assert.equal(valid.status, 200);
+  assert.deepEqual(await valid.json(), { result: 25 });
+
+  const legacy = await fetch(`${baseUrl}/v2/square?value=5`);
+
+  assert.equal(legacy.status, 200);
+  assert.deepEqual(await legacy.json(), { result: 144 });
 });
 
 test('square query parameters do not change the fixed result', async () => {
