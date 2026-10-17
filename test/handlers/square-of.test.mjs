@@ -10,6 +10,7 @@ for (const [input, result] of [
   ['-0', 0],
   ['1.5', 2.25],
   ['1e2', 10000],
+  ['1e154', 1e308],
   ['+3', 9],
   [' 2 ', 4],
 ]) {
@@ -30,14 +31,19 @@ for (const query of [
   'value=Infinity',
   'value=-Infinity',
   'value=1e309',
-  'value=1e200',
   'value=&value=5',
 ]) {
   test(`square-of handler rejects invalid query ${JSON.stringify(query)}`, () => {
-    assert.equal(squareOf(new URLSearchParams(query)), null);
+    assert.deepEqual(squareOf(new URLSearchParams(query)), { error: 'value must be a number' });
   });
 }
 
 test('square-of handler uses the first value parameter', () => {
   assert.deepEqual(squareOf(new URLSearchParams('value=3&value=5')), { result: 9 });
 });
+
+for (const value of ['1e200', '-1e200']) {
+  test(`square-of handler rejects square overflow for ${value}`, () => {
+    assert.deepEqual(squareOf(new URLSearchParams({ value })), { error: 'result out of range' });
+  });
+}

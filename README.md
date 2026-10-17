@@ -121,9 +121,11 @@ parameter, trims whitespace, and converts the complete string with JavaScript
 are accepted. Encode a literal plus sign as `%2B` in the query.
 
 Missing, empty, whitespace-only, non-numeric, and non-finite values return HTTP
-`400` with `{"error":"value"}`. A finite input whose square overflows also returns
-this error. Calculations use JavaScript numbers with normal floating-point
-rounding; both the input and square must be finite representable numbers.
+`400` with `{"error":"value must be a number"}`. A finite input whose square
+is not finite, such as `value=1e200`, returns HTTP `400` with
+`{"error":"result out of range"}`. Calculations use JavaScript numbers with normal
+floating-point rounding; both the input and square must be finite representable
+numbers.
 Success and error responses use `Content-Type: application/json; charset=utf-8`.
 Request bodies do not supply the value.
 

@@ -836,6 +836,7 @@ for (const [query, result] of [
   ['value=0', 0],
   ['value=1.5', 2.25],
   ['value=1e2', 10000],
+  ['value=1e154', 1e308],
   ['value=%2B3', 9],
   ['value=%202%20', 4],
   ['value=3&value=5', 9],
@@ -861,7 +862,6 @@ for (const query of [
   '?value=Infinity',
   '?value=-Infinity',
   '?value=1e309',
-  '?value=1e200',
   '?value=&value=5',
 ]) {
   test(`GET square-of with ${JSON.stringify(query)} returns a JSON 400`, async () => {
@@ -869,12 +869,23 @@ for (const query of [
 
     assert.equal(response.status, 400);
     assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
-    assert.deepEqual(await response.json(), { error: 'value' });
+    assert.deepEqual(await response.json(), { error: 'value must be a number' });
+  });
+}
+
+for (const value of ['1e200', '-1e200']) {
+  test(`GET square-of with value=${value} returns a range error`, async () => {
+    const response = await fetch(`${baseUrl}/v2/square-of?value=${value}`);
+
+    assert.equal(response.status, 400);
+    assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+    assert.deepEqual(await response.json(), { error: 'result out of range' });
   });
 }
 
 for (const [query, status] of [
   ['?value=5', 200],
+  ['?value=1e200', 400],
   ['?value=abc', 400],
   ['', 400],
 ]) {
@@ -902,7 +913,7 @@ test('square-of validation failures do not affect subsequent requests', async ()
   const invalid = await fetch(`${baseUrl}/v2/square-of?value=abc`);
 
   assert.equal(invalid.status, 400);
-  assert.deepEqual(await invalid.json(), { error: 'value' });
+  assert.deepEqual(await invalid.json(), { error: 'value must be a number' });
 
   const valid = await fetch(`${baseUrl}/v2/square-of?value=5`);
 

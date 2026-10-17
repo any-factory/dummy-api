@@ -31,8 +31,8 @@ export function createApp() {
 
     const payload = handler(url.searchParams);
 
-    if (payload === null) {
-      sendJson(response, 400, { error: 'value' });
+    if (Object.hasOwn(payload, 'error')) {
+      sendJson(response, 400, payload);
 
       return;
     }
